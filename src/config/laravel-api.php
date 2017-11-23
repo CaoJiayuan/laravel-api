@@ -7,5 +7,5 @@
  */
 
 return [
-
+    'separate_log_file' => env('SEPARATE_LOG_FILE', true)
 ];

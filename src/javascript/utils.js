@@ -113,3 +113,7 @@ export function htmlencode(s) {
     div.appendChild(document.createTextNode(s));
     return div.innerHTML;
 }
+
+export function flattenNodes(input, nodeKey) {
+
+}

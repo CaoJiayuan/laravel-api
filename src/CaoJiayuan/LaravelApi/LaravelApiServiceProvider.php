@@ -10,6 +10,7 @@ namespace CaoJiayuan\LaravelApi;
 
 
 use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
+use Illuminate\Log\Writer;
 use Illuminate\Support\ServiceProvider;
 use Mnabialek\LaravelSqlLogger\Providers\ServiceProvider as SqlLoggerServiceProvider;
 use Tymon\JWTAuth\Providers\LaravelServiceProvider;
@@ -46,21 +47,26 @@ class LaravelApiServiceProvider extends ServiceProvider
         $this->app->register(IdeHelperServiceProvider::class);
         $this->app->register(SqlLoggerServiceProvider::class);
         $this->app->register(LaravelServiceProvider::class);
+        $this->setLogWriter();
+    }
 
+    public function setLogWriter()
+    {
+        if (!config('laravel-api.separate_log_file')) {
+            return;
+        }
+        /** @var Writer $writer */
+        $writer = $this->app['log'];
+        if (PHP_SAPI == 'cli') {
+            $writer->getMonolog()->popHandler();
+            $writer->useFiles(storage_path('logs/laravel-cli.log'));
+        }
     }
 
     public function mergeConfig()
     {
-        /** @var \Illuminate\Config\Repository $config */
-        $config = $this->app['config'];
-        /** @var \Illuminate\Filesystem\Filesystem $file */
-        $file = $this->app['files'];
-
         foreach ($this->configs as $key) {
-            if (!$config->has($key)) {
-                $value = $file->getRequire(__DIR__.'/../../config/'. $key. '.php');
-                $config->set($key, $value);
-            }
+            $this->mergeConfigFrom(__DIR__.'/../../config/'. $key. '.php', $key);
         }
     }
 }
