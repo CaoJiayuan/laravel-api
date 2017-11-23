@@ -1,6 +1,6 @@
 {
     "name": "cao-jiayuan/laravel-api",
-    "description": "A simple starter kit for Laravel to build api",
+    "description": "A Laravel toolkit",
     "type": "library",
     "require": {
         "barryvdh/laravel-ide-helper": "^2.4",
