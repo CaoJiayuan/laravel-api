@@ -115,5 +115,4 @@ export function htmlencode(s) {
 }
 
 export function flattenNodes(input, nodeKey) {
-
 }
