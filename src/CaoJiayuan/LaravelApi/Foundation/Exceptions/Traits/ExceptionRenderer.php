@@ -131,8 +131,8 @@ trait ExceptionRenderer
         $model = $exception->getModel();
         $message = $exception->getMessage();
 
-        if (method_exists($model, 'getDisplayName')) {
-            $displayName = app($model)->getDisplayName();
+        if (defined($model .'::DISPLAY_NAME')) {
+            $displayName = $model::DISPLAY_NAME;
             $message = __('errors.modelNotFound', [
                 'model' => $displayName
             ]);
