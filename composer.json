@@ -33,6 +33,7 @@
         }
     },
     "suggest": {
-        "guzzlehttp/guzzle": "Required to use the OAuth util."
+        "guzzlehttp/guzzle": "Required to make http request.",
+        "barryvdh/laravel-cors": "Required to set cross domain."
     }
 }
