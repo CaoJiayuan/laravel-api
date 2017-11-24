@@ -12,7 +12,7 @@ namespace CaoJiayuan\LaravelApi\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\JWTGuard;
 
 class SimpleJWTAuthController extends Controller
 {
