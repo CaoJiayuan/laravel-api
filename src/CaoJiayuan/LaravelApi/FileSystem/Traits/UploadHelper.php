@@ -27,7 +27,7 @@ trait UploadHelper
     $p = $file->storePublicly($path);
 
     return [
-      'url'      => Storage::path($p),
+      'url'      => Storage::url($p),
       'type'     => $file->getClientMimeType(),
       'filename' => $file->getClientOriginalName()
     ];
@@ -66,7 +66,7 @@ trait UploadHelper
     $this->rmDir($dir);
 
     return [
-      'url'      => Storage::path($p),
+      'url'      => Storage::url($p),
       'type'     => $mimetype ? $mimetype : $file->getClientMimeType(),
       'filename' => $filename
     ];
