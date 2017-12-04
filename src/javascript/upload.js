@@ -75,6 +75,8 @@ fileUpload = function (el, url, config) {
         }).catch(response => {
             error(response.data, response);
         })
+    } else {
+        el.value = null;
     }
 
 };
