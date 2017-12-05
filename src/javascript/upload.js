@@ -169,7 +169,7 @@ uploadChunk = function (name, url, {blob, start, end, total, chunk_size, filenam
         }).catch(response => {
             onError(response.data, response);
         });
-    }, index * 120)
+    }, index * 10)
 };
 
 module.exports = {
