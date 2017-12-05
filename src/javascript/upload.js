@@ -123,14 +123,17 @@ chunkUpload = function (file, name, url, success, error, progress, chunkSize) {
     }
     let count = chunks.length;
     let i = 0;
+    let succeeded = false;
     chunks.forEach(chunk => {
         uploadChunk(name, url, chunk, count, (data, response) => {
             i++;
             progress(Math.round((i * 100) / count));
             if (response.status === 200) {
-                success(data, response);
+                if (!succeeded) {
+                    success(data, response);
+                    succeeded = true;
+                }
             }
-
         }, (data, response) => {
             error(data, response);
         });
