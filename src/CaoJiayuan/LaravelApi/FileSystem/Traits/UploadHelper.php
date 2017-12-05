@@ -56,16 +56,14 @@ trait UploadHelper
 
         $storeFileName = md5($fileId)  . $ext;
         $storagePath = rtrim($path, '/') . DIRECTORY_SEPARATOR . $storeFileName;
-        if (Storage::exists($storagePath)) {
+        if (Storage::exists($storagePath)) { // Using existing file
             $p = $storagePath;
-            \Log::info('>>>>Using existing file...');
         } else {
             $resultFile = $dir . DIRECTORY_SEPARATOR . $filename;
             $lockFile = $dir . DIRECTORY_SEPARATOR . $filename . '.lock';
-            usleep(1000);
-            if (file_exists($lockFile)) {
+            usleep(1000); // Wait a minute !!
+            if (file_exists($lockFile)) { // File merging...
                 $p = $storagePath;
-                \Log::info('>>>>File merging...');
             } else {
                 file_put_contents($lockFile, 'LOCKED', FILE_APPEND);
                 $fp = fopen($resultFile, 'w+r');
