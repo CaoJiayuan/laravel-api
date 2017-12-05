@@ -40,7 +40,7 @@ trait UploadHelper
 
     public function chunkUpload(Request $request, $path, $fileKey = 'file')
     {
-        list($fileId, $filename, $chunks, $index, $mimetype) = $this->getChunkUploadFileInfo($request);
+        list($fileId, $filename, $chunks, $index, $mimetype) = $this->getChunkUploadFileInfo($request, $fileKey);
         $file = $request->file($fileKey);
         $dir = $this->getChunkTempPath($fileId);
         $count = 0;
@@ -50,20 +50,27 @@ trait UploadHelper
         });
 
         if ($count < $chunks) {
-            throw new HttpException(201, 'Created, Count >>>> ' . $count);
+            throw new HttpException(201, 'Created, part:' . $count);
         }
-
-        $resultFile = $dir . DIRECTORY_SEPARATOR . $filename;
-        $fp = fopen($resultFile, 'w+r');
-        for ($i = 1; $i <= $chunks; $i++) {
-            $part = $resultFile . '.part.' . $i;
-            fwrite($fp, file_get_contents($part));
-        }
-        fclose($fp);
-        $uploadFile = new UploadedFile($resultFile, $filename);
         $ext = substr($filename, strrpos($filename, '.'));
-        $p = $uploadFile->storePubliclyAs($path, str_random(40) . $ext);
-        $this->rmDir($dir);
+
+        $storeFileName = md5($fileId)  . $ext;
+        $storagePath = rtrim($path, '/') . DIRECTORY_SEPARATOR . $storeFileName;
+        if (Storage::exists($storagePath)) {
+            $p = $storagePath;
+        } else {
+            $resultFile = $dir . DIRECTORY_SEPARATOR . $filename;
+            $fp = fopen($resultFile, 'w+r');
+            for ($i = 1; $i <= $chunks; $i++) {
+                $part = $resultFile . '.part.' . $i;
+                fwrite($fp, file_get_contents($part));
+            }
+            fclose($fp);
+            $uploadFile = new UploadedFile($resultFile, $filename);
+
+            $p = $uploadFile->storePubliclyAs($path, $storeFileName);
+            $this->rmDir($dir);
+        }
 
         return [
             'url'      => Storage::url($p),
@@ -102,7 +109,7 @@ trait UploadHelper
      * @param Request $request
      * @return array
      */
-    public function getChunkUploadFileInfo(Request $request)
+    public function getChunkUploadFileInfo(Request $request, $fileKey)
     {
         $fileId = $request->get('file_id'); // 文件id
         $filename = $request->get('filename'); // 文件名
