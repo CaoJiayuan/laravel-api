@@ -34,6 +34,7 @@
     },
     "suggest": {
         "guzzlehttp/guzzle": "Required to make http request.",
+        "lidelin/laravel-aliyun-sts": "Required to use aliyun sts util",
         "barryvdh/laravel-cors": "Required to set cross domain."
     }
 }
