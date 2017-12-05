@@ -58,18 +58,27 @@ trait UploadHelper
         $storagePath = rtrim($path, '/') . DIRECTORY_SEPARATOR . $storeFileName;
         if (Storage::exists($storagePath)) {
             $p = $storagePath;
+            \Log::info('>>>>Using existing file...');
         } else {
             $resultFile = $dir . DIRECTORY_SEPARATOR . $filename;
-            $fp = fopen($resultFile, 'w+r');
-            for ($i = 1; $i <= $chunks; $i++) {
-                $part = $resultFile . '.part.' . $i;
-                fwrite($fp, file_get_contents($part));
-            }
-            fclose($fp);
-            $uploadFile = new UploadedFile($resultFile, $filename);
+            $lockFile = $dir . DIRECTORY_SEPARATOR . $filename . '.lock';
+            usleep(1000);
+            if (file_exists($lockFile)) {
+                $p = $storagePath;
+                \Log::info('>>>>File merging...');
+            } else {
+                file_put_contents($lockFile, 'LOCKED', FILE_APPEND);
+                $fp = fopen($resultFile, 'w+r');
+                for ($i = 1; $i <= $chunks; $i++) {
+                    $part = $resultFile . '.part.' . $i;
+                    fwrite($fp, file_get_contents($part));
+                }
+                fclose($fp);
+                $uploadFile = new UploadedFile($resultFile, $filename);
 
-            $p = $uploadFile->storePubliclyAs($path, $storeFileName);
-            $this->rmDir($dir);
+                $p = $uploadFile->storePubliclyAs($path, $storeFileName);
+                $this->rmDir($dir);
+            }
         }
 
         return [
