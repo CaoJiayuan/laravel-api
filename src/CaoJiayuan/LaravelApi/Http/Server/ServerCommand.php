@@ -81,7 +81,13 @@ class ServerCommand extends Command
          */
         $httpWorker->onMessage = function ($connection, $data) use($d) {
             $this->fixUploadFiles();
-            $request = Request::createFromBase(SymfonyRequest::createFromGlobals());
+            $content = null;
+            if (str_contains(array_get($_SERVER, 'HTTP_CONTENT_TYPE'), ['/json', '+json'])) {
+                $content = json_encode($_POST);
+            }
+
+            $request = Request::create($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD'], $_POST, $_COOKIE, $_FILES, $_SERVER, $content);
+
             $response = $this->handleRequest($request);
             $header = $response->headers->__toString();
             $headers = explode("\r\n", $header);
