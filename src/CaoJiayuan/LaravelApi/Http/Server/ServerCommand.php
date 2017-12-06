@@ -104,6 +104,7 @@ class ServerCommand extends Command
 
         $staticPath = public_path();
         $uri = $request->getRequestUri();
+        $uri = head(explode('?',$uri,  2));
         $file = $staticPath . $uri;
         if (is_file($file)) {
             return $this->handleFileRequest($request, $file);
