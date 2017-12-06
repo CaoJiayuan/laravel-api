@@ -10,6 +10,7 @@ namespace CaoJiayuan\LaravelApi;
 
 
 use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
+use CaoJiayuan\LaravelApi\Http\Server\ServerCommand;
 use Illuminate\Log\Writer;
 use Illuminate\Support\ServiceProvider;
 use Mnabialek\LaravelSqlLogger\Providers\ServiceProvider as SqlLoggerServiceProvider;
@@ -48,6 +49,7 @@ class LaravelApiServiceProvider extends ServiceProvider
         $this->app->register(SqlLoggerServiceProvider::class);
         $this->app->register(LaravelServiceProvider::class);
         $this->setLogWriter();
+        $this->registerCommands();
     }
 
     public function setLogWriter()
@@ -68,5 +70,20 @@ class LaravelApiServiceProvider extends ServiceProvider
         foreach ($this->configs as $key) {
             $this->mergeConfigFrom(__DIR__.'/../../config/'. $key. '.php', $key);
         }
+    }
+
+    protected function registerCommands()
+    {
+        $this->registerServerCommend();
+
+
+        $this->commands(['command.laravel-api.server']);
+    }
+
+    protected function registerServerCommend()
+    {
+        $this->app->singleton('command.laravel-api.server', function ($app) {
+            return new ServerCommand();
+        });
     }
 }
