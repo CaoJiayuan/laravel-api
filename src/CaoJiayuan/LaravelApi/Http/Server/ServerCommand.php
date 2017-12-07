@@ -86,7 +86,7 @@ class ServerCommand extends Command
                 $content = json_encode($_POST);
             }
 
-            $request = Request::create($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD'], $_POST, $_COOKIE, $_FILES, $_SERVER, $content);
+            $request = Request::create($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD'], array_merge($_GET, $_POST), $_COOKIE, $_FILES, $_SERVER, $content);
 
             $response = $this->handleRequest($request);
             $header = $response->headers->__toString();
