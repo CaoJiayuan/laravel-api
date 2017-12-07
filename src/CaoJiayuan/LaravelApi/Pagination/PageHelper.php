@@ -11,6 +11,7 @@ namespace CaoJiayuan\LaravelApi\Pagination;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 trait PageHelper
 {
@@ -28,7 +29,7 @@ trait PageHelper
         $query = http_build_query(array_except($query, $pageName));
         $query && $query = '?' . $query;
         $path = $url . $query;
-        return $builder->paginate($perPage)->setPath($path);
+        return $builder->paginate($perPage, $columns, $pageName, $page)->setPath($path);
     }
 
     /**
@@ -54,5 +55,24 @@ trait PageHelper
 
         $builder->take($perPage);
         return $builder;
+    }
+
+    public function fakePager($array, $perPage = 15, $pageName = 'page', $page = null)
+    {
+        if ($page < 1 || !$page) {
+            $page = 1;
+        }
+
+        $items = array_slice($array, $perPage * ($page - 1), $perPage);
+        $url = url()->current();
+
+        $query = \Request::query();
+        $query = http_build_query(array_except($query, $pageName));
+        $query && $query = '?' . $query;
+        $path = $url . $query;
+        return new LengthAwarePaginator($items, count($array), $perPage, $page, [
+            'path'     => $path,
+            'pageName' => $pageName,
+        ]);
     }
 }
