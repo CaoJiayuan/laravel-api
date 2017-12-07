@@ -1,5 +1,7 @@
 <?php
 
+use CaoJiayuan\LaravelApi\Promise\Promise;
+
 if (!function_exists('is_local')) {
     function is_local()
     {
@@ -85,5 +87,12 @@ if (!function_exists('array_find')) {
         }
 
         return $default;
+    }
+}
+
+if (!function_exists('promise')) {
+    function promise(callable $promising, $params = [])
+    {
+        return Promise::resolve($promising, $params);
     }
 }
