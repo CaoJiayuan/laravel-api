@@ -9,6 +9,7 @@
 namespace CaoJiayuan\LaravelApi\Http\Server;
 
 use App\Http\Kernel;
+use CaoJiayuan\LaravelApi\Http\UploadedFile;
 use Carbon\Carbon;
 use CaoJiayuan\LaravelApi\FileSystem\MimeType\ExtensionMimeTypeGuesser;
 use Illuminate\Console\Command;
@@ -148,13 +149,18 @@ class ServerCommand extends Command
                 fclose($fp);
                 $key = array_get($file, 'name');
 
-                $_FILES[$key] = [
-                    'error'    => array_get($file, 'error', UPLOAD_ERR_OK),
-                    'name'     => array_get($file, 'file_name'),
-                    'type'     => array_get($file, 'file_type'),
-                    'tmp_name' => $tmpFile,
-                    'size'     => $size
-                ];
+                $fileName = array_get($file, 'file_name');
+                $mimeType = array_get($file, 'file_type');
+                $error = array_get($file, 'error', UPLOAD_ERR_OK);
+                $uploadedFile = new UploadedFile($tmpFile, $fileName, $mimeType, $size, $error);
+                $_FILES[$key]  = $uploadedFile;
+//                $_FILES[$key] = [
+//                    'error'    => array_get($file, 'error', UPLOAD_ERR_OK),
+//                    'name'     => $fileName,
+//                    'type'     => $mimeType,
+//                    'tmp_name' => $tmpFile,
+//                    'size'     => $size
+//                ];
             }
         }
 
