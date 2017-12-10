@@ -30,7 +30,7 @@ class ServerCommand extends Command
      * @var string
      */
 
-    protected $signature = 'laravel-api:server {--cmd=restart : Command to send} {--port=8888 : Listen port} {--count=4 : Work process} {--daemon=1 : Daemon mode}';
+    protected $signature = 'laravel-api:server {cmd=restart : Command to send} {--port=8888 : Listen port} {--count=4 : Work process} {--daemon=1 : Daemon mode}';
 
     /**
      * The console command description.
@@ -64,7 +64,7 @@ class ServerCommand extends Command
     {
         $port = $this->option('port') ?: 8888;
         $count = $this->option('count') ?: 4;
-        $cmd = $this->option('cmd') ?: 'restart';
+        $cmd = $this->argument('cmd') ?: 'restart';
         $d = $this->option('daemon') ?: 0;
 
         global $argv;
@@ -96,6 +96,7 @@ class ServerCommand extends Command
             }
             $d || $this->info("Handle request [{$request->url()}] from [{$request->ip()}], status: ({$response->status()})");
             $connection->send($response->content());
+            $this->kernel->terminate($request, $response);
         };
 
         Worker::runAll();
