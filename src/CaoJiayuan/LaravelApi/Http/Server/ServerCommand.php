@@ -70,11 +70,22 @@ class ServerCommand extends Command
 
         global $argv;
         $argv[1] = $cmd;
-        $d && $argv[2] = '-d';
+        if ($d) {
+            $argv[2] = '-d';
+        } else {
+            $argv[2] = '';
+        }
+
         $httpWorker = new Worker("http://0.0.0.0:{$port}");
 
         $httpWorker->count = $count;
 
+        /**
+         * @param Worker $worker
+         */
+        $httpWorker->onWorkerStart = function ($worker) use ($port) {
+          $this->info("Http server open on [0.0.0.0:$port], worker: [{$worker->id}]");
+        };
 
         /**
          * @param TcpConnection $connection
