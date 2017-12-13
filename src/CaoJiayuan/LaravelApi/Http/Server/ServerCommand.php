@@ -165,13 +165,6 @@ class ServerCommand extends Command
                 $error = array_get($file, 'error', UPLOAD_ERR_OK);
                 $uploadedFile = new UploadedFile($tmpFile, $fileName, $mimeType, $size, $error);
                 $_FILES[$key]  = $uploadedFile;
-//                $_FILES[$key] = [
-//                    'error'    => array_get($file, 'error', UPLOAD_ERR_OK),
-//                    'name'     => $fileName,
-//                    'type'     => $mimeType,
-//                    'tmp_name' => $tmpFile,
-//                    'size'     => $size
-//                ];
             }
         }
 
