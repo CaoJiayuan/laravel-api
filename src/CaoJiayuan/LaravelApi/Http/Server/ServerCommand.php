@@ -84,7 +84,7 @@ class ServerCommand extends Command
          * @param Worker $worker
          */
         $httpWorker->onWorkerStart = function ($worker) use ($port) {
-          $this->info("Http server open on [0.0.0.0:$port], worker: [{$worker->id}]");
+            $this->info("Http server open on [0.0.0.0:$port], worker: [{$worker->id}]");
         };
 
         /**
@@ -95,7 +95,11 @@ class ServerCommand extends Command
             $this->fixUploadFiles();
             $content = null;
             if (str_contains(array_get($_SERVER, 'HTTP_CONTENT_TYPE'), ['/json', '+json'])) {
-                $content = json_encode($_POST);
+                if (strtoupper($_SERVER['REQUEST_METHOD']) == 'POST') {
+                    $content = json_encode($_POST);
+                } else {
+                    $content = $GLOBALS['HTTP_RAW_REQUEST_DATA'];
+                }
             }
 
             $request = Request::create($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD'], array_merge($_GET, $_POST), $_COOKIE, $_FILES, $_SERVER, $content);
