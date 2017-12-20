@@ -10,6 +10,7 @@ namespace CaoJiayuan\LaravelApi;
 
 
 use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
+use CaoJiayuan\LaravelApi\Http\Proxy\HttpProxyCommand;
 use CaoJiayuan\LaravelApi\Http\Server\ServerCommand;
 use Illuminate\Log\Writer;
 use Illuminate\Support\ServiceProvider;
@@ -75,15 +76,22 @@ class LaravelApiServiceProvider extends ServiceProvider
     protected function registerCommands()
     {
         $this->registerServerCommend();
-
-
+        $this->registerProxyCommend();
         $this->commands(['command.laravel-api.server']);
+        $this->commands(['command.laravel-api.proxy']);
     }
 
     protected function registerServerCommend()
     {
         $this->app->singleton('command.laravel-api.server', function ($app) {
             return new ServerCommand();
+        });
+    }
+
+    protected function registerProxyCommend()
+    {
+        $this->app->singleton('command.laravel-api.proxy', function ($app) {
+            return new HttpProxyCommand();
         });
     }
 }
