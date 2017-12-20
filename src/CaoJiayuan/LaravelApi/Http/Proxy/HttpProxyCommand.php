@@ -10,6 +10,7 @@ namespace CaoJiayuan\LaravelApi\Http\Proxy;
 
 
 use Illuminate\Console\Command;
+use Workerman\Connection\TcpConnection;
 use Workerman\Worker;
 use Workerman\Connection\AsyncTcpConnection;
 
@@ -47,25 +48,27 @@ class HttpProxyCommand extends Command
         $worker = new Worker("tcp://0.0.0.0:{$port}");
         $worker->count = $count;
         $worker->name = 'http-proxy';
+        /**
+         * @param TcpConnection $connection
+         * @param $buffer
+         */
         $worker->onMessage = function($connection, $buffer) use ($d)
         {
-            list($method, $addr, $http_version) = explode(' ', $buffer);
-            $url_data = parse_url($addr);
-            $addr = !isset($url_data['port']) ? "{$url_data['host']}:80" : "{$url_data['host']}:{$url_data['port']}";
-            // Async TCP connection.
-            $remote_connection = new AsyncTcpConnection("tcp://$addr");
-            // CONNECT.
+            list($method, $address, $HttpVersion) = explode(' ', $buffer);
+            $UrlData = parse_url($address);
+            $address = !isset($UrlData['port']) ? "{$UrlData['host']}:80" : "{$UrlData['host']}:{$UrlData['port']}";
+
+            $remoteConnection = new AsyncTcpConnection("tcp://$address");
             if ($method !== 'CONNECT') {
-                $remote_connection->send($buffer);
-                // POST GET PUT DELETE etc.
+                $remoteConnection->send($buffer);
             } else {
                 $connection->send("HTTP/1.1 200 Connection Established\r\n\r\n");
             }
-            $d || $this->info("[$method] $addr");
+            $d || $this->info("[$method] $address");
 
-            $remote_connection ->pipe($connection);
-            $connection->pipe($remote_connection);
-            $remote_connection->connect();
+            $remoteConnection ->pipe($connection);
+            $connection->pipe($remoteConnection);
+            $remoteConnection->connect();
         };
 
         Worker::runAll();
