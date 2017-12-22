@@ -56,8 +56,13 @@ trait ExceptionRenderer
                 $errors = $exception->validator->getMessageBag();
                 $message = $errors->first();
             }
+            $debug = config('app.debug');
+
+            if (!$debug) {
+                $message = 'Server error';
+            }
             $data = ['code' => $code, 'errors' => $errors, 'message' => $message];
-            if (config('app.debug') && $code >= 500) {
+            if ($debug && $code >= 500) {
                 $file = $exception->getFile();
                 $file = str_replace(base_path() . DIRECTORY_SEPARATOR, '', $file);
                 $line = $exception->getLine();
