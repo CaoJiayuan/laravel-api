@@ -17,9 +17,19 @@ class KeyValue extends BaseEntity
     public static function getItem($key, $default = null)
     {
         if (!static::$items) {
-            static::$items = self::getConvertedData();
+            static::$items = static::getConvertedData();
         }
-
+        if (is_array($key)) {
+            $result = [];
+            foreach ($key as $k => $def) {
+                if (is_numeric($k)) {
+                    $result[$def] = array_get(static::$items, $def);
+                } else {
+                    $result[$k] = array_get(static::$items, $k, $def);
+                }
+            }
+            return $result;
+        }
         return array_get(static::$items, $key, $default);
     }
 
@@ -37,23 +47,29 @@ class KeyValue extends BaseEntity
 
     public static function store($key, $value = null)
     {
-        $insert = [];
+        $results = [];
         if (is_array($key)) {
             foreach ($key as $k => $item) {
                 if (!is_numeric($k)) {
-                    $insert[] = [
-                        'key'   => $k,
-                        'value' => $item
-                    ];
+                    $results[] = self::put($k, $item);
                 }
             }
         } else if (!is_numeric($key) && $value !== null) {
-            $insert[] = [
-                'key'   => $key,
-                'value' => $value
-            ];
+            $results[] = static::put($key, $value);
         }
 
-        return static::insert($insert);
+        return $results;
+    }
+
+    public static function put($key, $value)
+    {
+        $attr = [
+            'key'     => $key,
+            'value'   => $value,
+        ];
+
+        return static::updateOrCreate([
+            'key'     => $key,
+        ], $attr);
     }
 }
