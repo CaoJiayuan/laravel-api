@@ -92,6 +92,7 @@ class ServerCommand extends Command
          * @param $data
          */
         $httpWorker->onMessage = function ($connection, $data) use($d) {
+            $requestStart = microtime(true);
             $this->fixUploadFiles();
             $content = null;
             if (str_contains(array_get($_SERVER, 'HTTP_CONTENT_TYPE'), ['/json', '+json'])) {
@@ -110,9 +111,11 @@ class ServerCommand extends Command
             foreach ((array)$headers as $h) {
                 Http::header($h, true, $response->getStatusCode());
             }
-            $d || $this->info("Handle request [{$request->url()}] from [{$request->ip()}], status: ({$response->status()})");
             $connection->send($response->content());
             $this->kernel->terminate($request, $response);
+            $requestEnd = microtime(true);
+            $requestTime = round($requestEnd - $requestStart, 4);
+            $d || $this->info("Handle request [{$request->url()}] from [{$request->ip()}], status: ({$response->status()}), time : [$requestTime]");
         };
 
         Worker::runAll();
