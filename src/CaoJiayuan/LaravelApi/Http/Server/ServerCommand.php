@@ -95,15 +95,17 @@ class ServerCommand extends Command
             $requestStart = microtime(true);
             $this->fixUploadFiles();
             $content = null;
+            $post = $_POST;
             if (str_contains(array_get($_SERVER, 'HTTP_CONTENT_TYPE'), ['/json', '+json'])) {
                 if (strtoupper($_SERVER['REQUEST_METHOD']) == 'POST') {
-                    $content = json_encode($_POST);
+                    $content = json_encode($post);
                 } else {
                     $content = $GLOBALS['HTTP_RAW_REQUEST_DATA'];
+                    $post = json_decode($content, true) ?: [];
                 }
             }
 
-            $request = Request::create($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD'], array_merge($_GET, $_POST), $_COOKIE, $_FILES, $_SERVER, $content);
+            $request = Request::create($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD'], array_merge($_GET, $post), $_COOKIE, $_FILES, $_SERVER, $content);
 
             $response = $this->handleRequest($request);
             $header = $response->headers->__toString();
