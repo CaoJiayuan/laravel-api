@@ -78,6 +78,7 @@ class ServerCommand extends Command
 
         $httpWorker = new Worker("http://0.0.0.0:{$port}");
 
+        $httpWorker->name = config('app.name');
         $httpWorker->count = $count;
 
         /**
