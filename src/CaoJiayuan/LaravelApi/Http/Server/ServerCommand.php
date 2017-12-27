@@ -117,7 +117,7 @@ class ServerCommand extends Command
             $this->kernel->terminate($request, $response);
             $requestEnd = microtime(true);
             $requestTime = round($requestEnd - $requestStart, 4);
-            $d || $this->info("Handle request [{$request->url()}] from [{$request->ip()}], status: ({$response->status()}), time : [$requestTime]");
+            $d || $this->info("Handle request ({$request->getMethod()})[{$request->url()}] from [{$request->ip()}], status: ({$response->status()}), time : [$requestTime]");
         };
 
         Worker::runAll();
