@@ -15,6 +15,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 trait UploadHelper
 {
+    protected $uploadFilePrefix = '';
 
     public function uploadFile(Request $request, $path = 'file', $fileKey = 'file')
     {
@@ -24,7 +25,7 @@ trait UploadHelper
             return $result;
         }
         $file = $request->file($fileKey);
-        $p = $file->storePublicly($path);
+        $p = $file->storePubliclyAs($path, $this->uploadFilePrefix . $file->hashName());
 
         return [
             'url'      => Storage::url($p),
@@ -54,7 +55,7 @@ trait UploadHelper
         }
         $ext = substr($filename, strrpos($filename, '.'));
 
-        $storeFileName = md5($fileId)  . $ext;
+        $storeFileName = $this->uploadFilePrefix . md5($fileId)  . $ext;
         $storagePath = rtrim($path, '/') . DIRECTORY_SEPARATOR . $storeFileName;
         if (Storage::exists($storagePath)) { // Using existing file
             $p = $storagePath;
