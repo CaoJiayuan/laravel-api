@@ -16,7 +16,7 @@ use Sts\Core\Profile\DefaultProfile;
 class StsAuth
 {
 
-    public static function auth($roleName)
+    public static function auth($roleName, $regionId = "cn-hangzhou")
     {
         $re = new AssumeRoleRequest();
         $accessKeyID = config('aliyun_sts.key');
@@ -24,8 +24,7 @@ class StsAuth
         $roleArn = config('aliyun_sts.role_arn');
         $tokenExpire = config('aliyun_sts.expire_time');
         $policy = config('aliyun_sts.policy');
-
-        $pf = DefaultProfile::getProfile("cn-hangzhou", $accessKeyID, $accessKeySecret);
+        $pf = DefaultProfile::getProfile($regionId, $accessKeyID, $accessKeySecret);
         $cli = new DefaultAcsClient($pf);
         $re->setRoleSessionName($roleName);
         $re->setRoleArn($roleArn);
