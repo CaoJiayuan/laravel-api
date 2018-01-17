@@ -1,6 +1,8 @@
 <?php
 
 use CaoJiayuan\LaravelApi\Promise\Promise;
+use Illuminate\Support\Debug\HtmlDumper;
+use Symfony\Component\VarDumper\Cloner\VarCloner;
 
 if (!function_exists('is_local')) {
     function is_local()
@@ -96,3 +98,18 @@ if (!function_exists('promise')) {
         return Promise::resolve($promising, $params);
     }
 }
+
+
+
+if (!function_exists('html_dump')) {
+    function html_dump(...$args)
+    {
+        ob_start();
+        foreach ($args as $x) {
+            (new HtmlDumper())->dump((new VarCloner())->cloneVar($x));
+        }
+        return ob_get_clean();
+    }
+}
+
+

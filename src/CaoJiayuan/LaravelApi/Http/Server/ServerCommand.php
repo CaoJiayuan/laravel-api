@@ -9,15 +9,14 @@
 namespace CaoJiayuan\LaravelApi\Http\Server;
 
 use App\Http\Kernel;
+use CaoJiayuan\LaravelApi\FileSystem\MimeType\ExtensionMimeTypeGuesser;
 use CaoJiayuan\LaravelApi\Http\UploadedFile;
 use Carbon\Carbon;
-use CaoJiayuan\LaravelApi\FileSystem\MimeType\ExtensionMimeTypeGuesser;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesser;
-use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Workerman\Connection\TcpConnection;
 use Workerman\Protocols\Http;
 use Workerman\Worker;
@@ -49,11 +48,17 @@ class ServerCommand extends Command
     public function __construct()
     {
         $this->tmpPath = storage_path('app/tmp');
-        if (!file_exists($this->tmpPath)){
+        if (!file_exists($this->tmpPath)) {
             mkdir($this->tmpPath, 0775);
         }
+        $this->bindInstances();
         $this->kernel = app(Kernel::class);
         parent::__construct();
+    }
+
+    public function bindInstances()
+    {
+
     }
 
     /**
@@ -92,7 +97,7 @@ class ServerCommand extends Command
          * @param TcpConnection $connection
          * @param $data
          */
-        $httpWorker->onMessage = function ($connection, $data) use($d) {
+        $httpWorker->onMessage = function ($connection, $data) use ($d) {
             $requestStart = microtime(true);
             $this->fixUploadFiles();
             $content = null;
@@ -108,6 +113,7 @@ class ServerCommand extends Command
 
             $request = Request::create($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD'], array_merge($_GET, $post), $_COOKIE, $_FILES, $_SERVER, $content);
 
+            $this->beforeRequest($request);
             $response = $this->handleRequest($request);
             $header = $response->headers->__toString();
             $headers = explode("\r\n", $header);
@@ -116,12 +122,45 @@ class ServerCommand extends Command
             }
             $connection->send($response->content());
             $this->kernel->terminate($request, $response);
+            $this->afterRequest($request, $response);
             $requestEnd = microtime(true);
             $requestTime = round($requestEnd - $requestStart, 4);
             $d || $this->info("Handle request ({$request->getMethod()})[{$request->url()}] from [{$request->ip()}], status: ({$response->status()}), time : [{$requestTime}s]");
         };
 
         Worker::runAll();
+    }
+
+    /**
+     * @param Request $request
+     */
+    public function beforeRequest($request)
+    {
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     */
+    public function afterRequest($request, $response)
+    {
+        $this->clearAuth();
+
+        \Session::flush();
+    }
+
+    public function clearAuth()
+    {
+        $auth = app('auth');
+
+        $prop = new \ReflectionProperty($auth, 'guards');
+        $prop->setAccessible(true);
+        $prop->setValue($auth, []);
+
+        if (app()->has('tymon.jwt')) {
+            app('tymon.jwt')->unsetToken();
+        }
+
     }
 
     /**
@@ -133,7 +172,7 @@ class ServerCommand extends Command
 
         $staticPath = public_path();
         $uri = $request->getRequestUri();
-        $uri = head(explode('?',$uri,  2));
+        $uri = head(explode('?', $uri, 2));
         $file = $staticPath . $uri;
         if (is_file($file)) {
             return $this->handleFileRequest($request, $file);
@@ -159,7 +198,7 @@ class ServerCommand extends Command
                 $i = 0;
                 $chunk = 1024;
                 do {
-                    if ($remain < $chunk){
+                    if ($remain < $chunk) {
                         $chunk = $remain;
                     }
                     $remain -= $chunk;
@@ -174,7 +213,7 @@ class ServerCommand extends Command
                 $mimeType = array_get($file, 'file_type');
                 $error = array_get($file, 'error', UPLOAD_ERR_OK);
                 $uploadedFile = new UploadedFile($tmpFile, $fileName, $mimeType, $size, $error);
-                $_FILES[$key]  = $uploadedFile;
+                $_FILES[$key] = $uploadedFile;
             }
         }
 
