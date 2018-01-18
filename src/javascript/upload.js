@@ -24,11 +24,23 @@ UploadFile.prototype.getSize = function () {
     return this.file.size;
 };
 
+UploadFile.prototype.getExtension = function () {
+    let partials = this.file.name.split('.');
+
+    return partials[partials.length - 1];
+};
+
 UploadFile.prototype.notExceeding = function (size) {
     return this.getSize() <= size;
 };
 
 UploadFile.prototype.invalidFileMessage = '文件格式不正确';
+
+const DRIVER_OSS = 'oss';
+const DRIVER_SERVER = 'server';
+
+
+const STS_STORAGE_KEY = 'oss_sts_credentials';
 
 const defaultConfig = {
     progress : () => {
@@ -40,23 +52,45 @@ const defaultConfig = {
     error    : data => {
 
     },
-    chunkSize: UploadFile.MB
+    chunkSize: UploadFile.MB,
+    driver   : DRIVER_SERVER,
+    name     : 'file',
+    stsUrl   : '/api/sts/auth'
 };
 
 
-fileUpload = function (el, url, config) {
-    config = config || {};
-    let name = el.name || 'file', id = el.id;
-    let file = el.files[0];
+upload = function (file, url, config) {
     let configs = Object.assign(defaultConfig, config);
     let uploadFile = new UploadFile(file);
     let validate = configs.validate;
+    let error = configs.error;
 
     if (validate(uploadFile)) {
         let success = configs.success;
-        let error = configs.error;
         let progress = configs.progress;
-        if (configs.chunk) {
+        let name = configs.name;
+        if (configs.driver === DRIVER_OSS) {
+            let fixedProgress = p => {
+                progress(Math.round(p * 100));
+                return done => {
+                    done();
+                }
+            };
+            return getOssClient(configs.stsUrl).then(client => {
+                let fileId = md5(file.name + new Date().getTime());
+                let prefix = client.prefix ? client.prefix + '/' : '';
+                let filename = fileId + '.' + uploadFile.getExtension();
+                return client.multipartUpload(prefix + filename, file, {
+                    progress: fixedProgress
+                }).then(result => success({
+                    filename: file.name,
+                    type : file.type,
+                    url : result.res.requestUrls[0]
+                })).catch(err => error(err))
+            });
+        }
+
+        if (configs.chunk && file.size > configs.chunkSize) {
             return chunkUpload(file, name, url, success, error, progress, configs.chunkSize);
         }
 
@@ -66,7 +100,11 @@ fileUpload = function (el, url, config) {
             onUploadProgress: progressEvent => {
                 let percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                 progress(percentCompleted, progressEvent)
-            }
+            },
+            headers         : {
+                'X-Uploaded-With': 'FileUploader'
+            },
+            showLoading     : false
         };
         axios.post(url, fd, config).then(response => {
             success(response.data, response)
@@ -76,9 +114,27 @@ fileUpload = function (el, url, config) {
             error(response.data, response);
         })
     } else {
-        el.value = null;
+        error({
+            code   : 422,
+            message: uploadFile.invalidFileMessage
+        });
     }
+};
 
+fileUpload = function (el, url, config) {
+    config = config || {};
+    let name = el.name || 'file';
+    let file = el.files[0];
+    config.name = config.name || name;
+    let error = config.error;
+    error = error || function () {
+
+    };
+    config.error = data => {
+        error(data);
+        el.value = null;
+    };
+    return upload(file, url, config);
 };
 
 let uploading = true;
@@ -161,9 +217,10 @@ uploadChunk = function (name, url, {blob, start, end, total, chunk_size, filenam
             return;
         }
         axios.post(url, fd, {
-            headers: {
+            headers    : {
                 'X-Uploaded-With': 'ChunkUpload'
-            }
+            },
+            showLoading: false
         }).then(response => {
             onSuccess(response.data, response)
         }).catch(error => {
@@ -175,7 +232,29 @@ uploadChunk = function (name, url, {blob, start, end, total, chunk_size, filenam
     }, index * 10)
 };
 
+getOssClient = function (stsUrl) {
+    let credentials = localStorage.getItem(STS_STORAGE_KEY);
+    let parse = null;
+    try {parse = JSON.parse(credentials);} catch (e) {}
+    if (parse && parse.expire_at * 1000 > new Date().getTime()) {
+        let client = new OSS.Wrapper(parse);
+        client.prefix = parse.prefix;
+        return Promise.resolve(client)
+    } else {
+        return axios.get(stsUrl).then(re => {
+            credentials = re.data;
+            localStorage.setItem(STS_STORAGE_KEY, JSON.stringify(credentials));
+            let client = new OSS.Wrapper(credentials);
+            client.prefix = credentials.prefix;
+            return client;
+        })
+    }
+};
+
 module.exports = {
     fileUpload,
-    UploadFile
+    upload,
+    UploadFile,
+    DRIVER_OSS,
+    DRIVER_SERVER
 };
