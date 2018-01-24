@@ -44,8 +44,16 @@ class ServerCommand extends Command
 
     protected $tmpPath;
 
+    protected $appName = 'Laravel server';
+
 
     public function __construct()
+    {
+        $this->initCommand();
+        parent::__construct();
+    }
+
+    public function initCommand()
     {
         $this->tmpPath = storage_path('app/tmp');
         if (!file_exists($this->tmpPath)) {
@@ -53,7 +61,7 @@ class ServerCommand extends Command
         }
         $this->bindInstances();
         $this->kernel = app(Kernel::class);
-        parent::__construct();
+        $this->appName = config('app.name');
     }
 
     public function bindInstances()
@@ -83,7 +91,7 @@ class ServerCommand extends Command
 
         $httpWorker = new Worker("http://0.0.0.0:{$port}");
 
-        $httpWorker->name = config('app.name');
+        $httpWorker->name = $this->appName;
         $httpWorker->count = $count;
 
         /**
@@ -99,19 +107,8 @@ class ServerCommand extends Command
          */
         $httpWorker->onMessage = function ($connection, $data) use ($d) {
             $requestStart = microtime(true);
-            $this->fixUploadFiles();
-            $content = null;
-            $post = $_POST;
-            if (str_contains(array_get($_SERVER, 'HTTP_CONTENT_TYPE'), ['/json', '+json'])) {
-                if (strtoupper($_SERVER['REQUEST_METHOD']) == 'POST') {
-                    $content = json_encode($post);
-                } else {
-                    $content = $GLOBALS['HTTP_RAW_REQUEST_DATA'];
-                    $post = json_decode($content, true) ?: [];
-                }
-            }
 
-            $request = Request::create($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD'], array_merge($_GET, $post), $_COOKIE, $_FILES, $_SERVER, $content);
+            $request = $this->generateRequest();
 
             $this->beforeRequest($request);
             $response = $this->handleRequest($request);
@@ -121,7 +118,6 @@ class ServerCommand extends Command
                 Http::header($h, true, $response->getStatusCode());
             }
             $connection->send($response->content());
-            $this->kernel->terminate($request, $response);
             $this->afterRequest($request, $response);
             $requestEnd = microtime(true);
             $requestTime = round($requestEnd - $requestStart, 4);
@@ -129,6 +125,23 @@ class ServerCommand extends Command
         };
 
         Worker::runAll();
+    }
+
+    public function generateRequest()
+    {
+        $this->fixUploadFiles();
+        $content = null;
+        $post = $_POST;
+        if (str_contains(array_get($_SERVER, 'HTTP_CONTENT_TYPE'), ['/json', '+json'])) {
+            if (strtoupper($_SERVER['REQUEST_METHOD']) == 'POST') {
+                $content = json_encode($post);
+            } else {
+                $content = $GLOBALS['HTTP_RAW_REQUEST_DATA'];
+                $post = json_decode($content, true) ?: [];
+            }
+        }
+
+        return Request::create($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD'], array_merge($_GET, $post), $_COOKIE, $_FILES, $_SERVER, $content);
     }
 
     /**
@@ -144,6 +157,8 @@ class ServerCommand extends Command
      */
     public function afterRequest($request, $response)
     {
+        $this->kernel->terminate($request, $response);
+
         $this->clearAuth();
 
         \Session::flush();
@@ -169,17 +184,26 @@ class ServerCommand extends Command
      */
     public function handleRequest($request)
     {
-
-        $staticPath = public_path();
+        $staticPath = $this->getStaticPath();
         $uri = $request->getRequestUri();
         $uri = head(explode('?', $uri, 2));
         $file = $staticPath . $uri;
         if (is_file($file)) {
             return $this->handleFileRequest($request, $file);
         }
-        $response = $this->kernel->handle($request);
+        $response = $this->handleHttpRequest($request);
 
         return $response;
+    }
+
+    public function getStaticPath()
+    {
+        return public_path();
+    }
+
+    public function handleHttpRequest($request)
+    {
+       return $this->kernel->handle($request);
     }
 
     public function fixUploadFiles()
