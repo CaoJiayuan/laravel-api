@@ -46,6 +46,8 @@ class ServerCommand extends Command
 
     protected $appName = 'Laravel server';
 
+    protected $keepAlive = true;
+
 
     public function __construct()
     {
@@ -119,6 +121,7 @@ class ServerCommand extends Command
             }
             $connection->send($response->content());
             $this->afterRequest($request, $response);
+            $this->keepAlive || $connection->close();
             $requestEnd = microtime(true);
             $requestTime = round($requestEnd - $requestStart, 4);
             $d || $this->info("Handle request ({$request->getMethod()})[{$request->url()}] from [{$request->ip()}], status: ({$response->status()}), time : [{$requestTime}s]");
