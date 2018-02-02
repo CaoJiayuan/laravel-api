@@ -11,6 +11,7 @@ namespace CaoJiayuan\LaravelApi\Http\Repository;
 use CaoJiayuan\LaravelApi\Pagination\PageHelper;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Request;
 
 class Repository
 {
@@ -18,7 +19,7 @@ class Repository
 
     public function getSearchAbleData($model, array $search = [], \Closure $closure = null, \Closure $trans = null)
     {
-        $data = \Request::only([
+        $data = Request::only([
             'filter', 'sort', 'per_page'
         ]);
         $data = array_merge([

@@ -12,6 +12,7 @@ namespace CaoJiayuan\LaravelApi\Pagination;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Request;
 
 trait PageHelper
 {
@@ -24,8 +25,8 @@ trait PageHelper
      */
     public function applyPaginate($builder, $perPage = 15, $columns = ['*'], $pageName = 'page', $page = null)
     {
-        $url = url()->current();
-        $query = \Request::query();
+        $url =  app('url')->current();
+        $query = Request::query();
         $query = http_build_query(array_except($query, $pageName));
         $query && $query = '?' . $query;
         $path = $url . $query;
@@ -41,8 +42,8 @@ trait PageHelper
      */
     public function pageByKey($builder, $perPage = 15, $minKeyName = 'since_id', $maxKeyName = 'to_id')
     {
-        $maxId = \Request::get($maxKeyName, 0);
-        $sinceId = \Request::get($minKeyName);
+        $maxId = Request::get($maxKeyName, 0);
+        $sinceId = Request::get($minKeyName);
         $table = $builder->getModel()->getTable();
         $key = $builder->getModel()->getKeyName();
         if ($maxId) {
@@ -64,9 +65,9 @@ trait PageHelper
         }
 
         $items = array_slice($array, $perPage * ($page - 1), $perPage);
-        $url = url()->current();
+        $url = app('url')->current();
 
-        $query = \Request::query();
+        $query = Request::query();
         $query = http_build_query(array_except($query, $pageName));
         $query && $query = '?' . $query;
         $path = $url . $query;
