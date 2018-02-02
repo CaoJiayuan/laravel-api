@@ -56,7 +56,7 @@ trait ExceptionRenderer
                 $errors = $exception->validator->getMessageBag();
                 $message = $errors->first();
             }
-            $debug = config('app.debug');
+            $debug = env('APP_DEBUG');
 
             if (!$debug) {
                 $message = 'Server error';
