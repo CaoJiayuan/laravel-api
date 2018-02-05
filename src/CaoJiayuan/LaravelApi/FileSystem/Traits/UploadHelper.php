@@ -17,6 +17,8 @@ trait UploadHelper
 {
     protected $uploadFilePrefix = '';
 
+    protected $uploadedFile = '';
+
     public function uploadFile(Request $request, $path = 'file', $fileKey = 'file')
     {
         if ($this->isChunkUpload($request)) {
@@ -25,8 +27,10 @@ trait UploadHelper
             return $result;
         }
         $file = $request->file($fileKey);
-        $p = $file->storePubliclyAs($path, $this->uploadFilePrefix . $file->hashName());
+        $filename = $file->hashName();
+        $p = $file->storePubliclyAs($path, $this->uploadFilePrefix . $filename);
 
+        $this->uploadedFile = $path . DIRECTORY_SEPARATOR . $this->uploadFilePrefix . $filename;
         return [
             'url'      => Storage::url($p),
             'type'     => $file->getClientMimeType(),
@@ -79,6 +83,7 @@ trait UploadHelper
                 $this->rmDir($dir);
             }
         }
+        $this->uploadedFile = $path . DIRECTORY_SEPARATOR . $storeFileName;
 
         return [
             'url'      => Storage::url($p),
