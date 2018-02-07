@@ -23,7 +23,6 @@ use PHPExcel_Cell_DataValidation;
 trait ExcelEntity
 {
 
-
     protected $excelFormatMap = [
         'string' => ExcelFormat::FORMAT_TEXT,
         'date'   => ExcelFormat::FORMAT_DATE_YYYYMMDD2,
@@ -122,13 +121,18 @@ trait ExcelEntity
                 $this->validateImport($rows);
 
                 try {
-                    $this->insert($rows);
+                    $this->insertImportData($rows);
                 } catch (\Exception $exception) {
                     $this->handleImportException($exception);
                 }
                 break;
             }
         });
+    }
+
+    public function insertImportData($rows)
+    {
+        $this->insert($rows);
     }
 
     public function exportExcel(Collection $models, $name)
