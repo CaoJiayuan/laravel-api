@@ -36,6 +36,7 @@
         "guzzlehttp/guzzle": "Required to make http request.",
         "lidelin/laravel-aliyun-sts": "Required to use aliyun sts util.",
         "workerman/workerman": "Required to use server command.",
+        "maatwebsite/excel": "Required to use excel model functional.",
         "barryvdh/laravel-cors": "Required to set cross domain."
     }
 }

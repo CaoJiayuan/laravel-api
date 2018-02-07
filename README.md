@@ -1,1 +1,2 @@
-# laravel-api
+# Useful utils for laravel/lumen
+
