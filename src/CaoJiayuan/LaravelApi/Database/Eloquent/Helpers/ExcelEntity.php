@@ -23,7 +23,6 @@ use PHPExcel_Cell_DataValidation;
 trait ExcelEntity
 {
 
-    protected $importTemplateName = null;
 
     protected $excelFormatMap = [
         'string' => ExcelFormat::FORMAT_TEXT,
@@ -47,7 +46,7 @@ trait ExcelEntity
 
     public function getExcelCastFormat($cast)
     {
-        return array_get($this->excelFormatMap, $cast, ExcelFormat::FORMAT_TEXT);
+        return array_get($this->getExcelFormatMap(), $cast, ExcelFormat::FORMAT_TEXT);
     }
 
 
@@ -64,11 +63,7 @@ trait ExcelEntity
 
     public function getImportTemplateName()
     {
-        if (!$this->importTemplateName) {
-            $this->importTemplateName = md5(get_class($this));
-        }
-
-        return $this->importTemplateName;
+        return md5(get_class($this));
     }
 
 
@@ -91,7 +86,7 @@ trait ExcelEntity
                     $c = 0;
                     foreach ($headers as $key => $name) {
                         $column = $columns[$c];
-                        $this->setColumnCast($sheet, $key, $column);
+                        $this->setExcelColumnCast($sheet, $key, $column);
                         $c++;
                     }
                     $template = $this->getImportTemplateRow();
@@ -327,9 +322,9 @@ trait ExcelEntity
      * @param int $firstRow
      * @param int $numOfRow
      */
-    protected function setColumnCast($sheet, $key, $column, $firstRow = 2, $numOfRow = 100)
+    protected function setExcelColumnCast($sheet, $key, $column, $firstRow = 2, $numOfRow = 100)
     {
-        $cast = array_get($this->casts, $key);
+        $cast = array_get($this->getExcelColumnCasts(), $key);
         if ($cast) {
             if ($cast == 'enum') {
                 $source = $this->getEnumValues($key);
@@ -345,6 +340,11 @@ trait ExcelEntity
                 ]);
             }
         }
+    }
+
+    protected function getExcelColumnCasts()
+    {
+        return [];
     }
 
     protected function setCellValidationList(PHPExcel_Cell_DataValidation $cellValidation, $key, $source = [])
