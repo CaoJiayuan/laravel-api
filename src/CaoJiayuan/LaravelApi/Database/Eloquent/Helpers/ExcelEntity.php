@@ -10,6 +10,7 @@ namespace CaoJiayuan\LaravelApi\Database\Eloquent\Helpers;
 
 use CaoJiayuan\LaravelApi\Database\Eloquent\ExcelFormat;
 use CaoJiayuan\LaravelApi\Database\Eloquent\Exceptions\InvalidImportFormatException;
+use Carbon\Carbon;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
@@ -24,16 +25,18 @@ trait ExcelEntity
 {
 
     protected $excelFormatMap = [
-        'string' => ExcelFormat::FORMAT_TEXT,
-        'date'   => ExcelFormat::FORMAT_DATE_YYYYMMDD2,
-        'int'    => ExcelFormat::FORMAT_NUMBER,
-        'float'  => ExcelFormat::FORMAT_NUMBER_00,
+        'string'   => ExcelFormat::FORMAT_TEXT,
+        'date'     => ExcelFormat::FORMAT_DATE_YYYYMMDD2,
+        'datetime' => ExcelFormat::FORMAT_DATE_ISO8601,
+        'int'      => ExcelFormat::FORMAT_NUMBER,
+        'float'    => ExcelFormat::FORMAT_NUMBER_00,
     ];
 
     public function getEnumValues($key)
     {
         $t = ucfirst(camel_case($key));
         $method = "get{$t}Enums";
+
 
         if (method_exists($this, $method)) {
             return $this->$method();
@@ -114,7 +117,7 @@ trait ExcelEntity
 
     public function importExcel($file)
     {
-        Excel::load($file, function ($reader){
+        Excel::load($file, function ($reader) {
             /** @var LaravelExcelReader $reader */
             foreach ($reader as $sheet) {
                 $rows = $this->getImportRows($sheet);
@@ -141,9 +144,9 @@ trait ExcelEntity
         $excelType = $this->getExcelType();
         $dir = storage_path('app/' . $excelType);
         $cacheName = str_random(32);
-        Excel::create($cacheName, function ($excel) use ($models, $headers) {
+        Excel::create($cacheName, function ($excel) use ($models, $headers, $name) {
             /** @var \Maatwebsite\Excel\Writers\LaravelExcelWriter $excel */
-            $excel->sheet('表格1', function($sheet) use ($models, $headers) {
+            $excel->sheet($name, function ($sheet) use ($models, $headers) {
                 /** @var \Maatwebsite\Excel\Classes\LaravelExcelWorksheet $sheet */
                 $array = $models->map(function ($model) use ($models, $headers) {
                     /** @var Model $model */
@@ -166,7 +169,7 @@ trait ExcelEntity
                 $sheet->fromArray($array, '', 'A1', false, false);
             });
         })->store($excelType, $dir);
-        $path = $dir . DIRECTORY_SEPARATOR . $cacheName. '.' . $excelType;
+        $path = $dir . DIRECTORY_SEPARATOR . $cacheName . '.' . $excelType;
         $filename = $name . '.' . $excelType;
         $file = new UploadedFile($path, $filename);
 
@@ -178,9 +181,11 @@ trait ExcelEntity
     /**
      * @param \PHPExcel $sheet
      * @param bool $withOutFirstRow
+     * @param int $page
+     * @param null $limit
      * @return array
      */
-    public function getImportRows($sheet, $withOutFirstRow = true)
+    public function getImportRows($sheet, $withOutFirstRow = true, $page = 1, $limit = null)
     {
         $headers = $this->getExcelHeaders();
 
@@ -206,8 +211,8 @@ trait ExcelEntity
                 $name = array_get($head, $i);
                 if ($name && $key = array_get($keys, $name)) {
                     $value = $item->getValue();
-                    if ($value == null){
-                        $countNull ++;
+                    if ($value == null) {
+                        $countNull++;
                     }
                     $cell = $this->castImportValue($key, $value);
 
@@ -376,6 +381,7 @@ trait ExcelEntity
         $cellValidation->setErrorTitle('输入数据不正确');
         $cellValidation->setError("[$name] 的输入数据不正确");
     }
+
     /**
      * @return string
      */

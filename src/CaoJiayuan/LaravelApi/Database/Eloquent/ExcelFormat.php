@@ -12,4 +12,5 @@ namespace CaoJiayuan\LaravelApi\Database\Eloquent;
 class ExcelFormat extends \PHPExcel_Style_NumberFormat
 {
 
+    const FORMAT_DATE_ISO8601 = 'yyyy-mm-dd hh:mm:ss';
 }
