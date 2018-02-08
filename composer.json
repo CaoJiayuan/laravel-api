@@ -3,10 +3,12 @@
     "description": "Useful utils for laravel/lumen",
     "type": "library",
     "require": {
+        "tymon/jwt-auth": "^1.0.0"
+    },
+    "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.4",
         "doctrine/dbal": "^2.6",
-        "mnabialek/laravel-sql-logger": "^1.1",
-        "tymon/jwt-auth": "^1.0.0"
+        "mnabialek/laravel-sql-logger": "^1.1"
     },
     "license": "MIT",
     "authors": [
