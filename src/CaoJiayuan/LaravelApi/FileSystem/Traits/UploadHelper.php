@@ -115,7 +115,9 @@ trait UploadHelper
 
     public function getExtensionByName($filename)
     {
-        return substr($filename, strrpos($filename, '.') + 1);
+        $pos = strrpos($filename, '.');
+
+        return $pos ? substr($filename, $pos + 1) : false;
     }
 
     /**

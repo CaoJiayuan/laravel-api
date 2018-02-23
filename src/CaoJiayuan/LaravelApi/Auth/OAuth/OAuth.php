@@ -37,7 +37,7 @@ class OAuth
 
     public static function goPage($type)
     {
-        $url = self::getRedirctUrl($type);
+        $url = self::getRedirectUrl($type);
 
         return redirect($url);
     }

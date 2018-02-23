@@ -178,6 +178,45 @@ trait ExcelEntity
         return Storage::url($path);
     }
 
+
+    public function exportFromBlade(Collection $models, $view, $name)
+    {
+        $headers = $this->getExcelHeaders();
+        $excelType = $this->getExcelType();
+        $dir = storage_path('app/' . $excelType);
+        $cacheName = str_random(32);
+        Excel::create($cacheName, function ($excel) use ($models, $headers, $name, $view) {
+            /** @var \Maatwebsite\Excel\Writers\LaravelExcelWriter $excel */
+            $excel->sheet($name, function ($sheet) use ($models, $headers, $view) {
+                /** @var \Maatwebsite\Excel\Classes\LaravelExcelWorksheet $sheet */
+                $items = $models->map(function ($model) use ($models, $headers, $view) {
+                    /** @var Model $model */
+                    $result = [];
+                    foreach ($headers as $key => $v) {
+                        $format = ucfirst(camel_case($key));
+                        $changer = "get{$format}ExportValue";
+                        if (method_exists($this, $changer)) {
+                            $result[$key] = $this->$changer($model->$key, $model);
+                        } else {
+                            $result[$key] = $model->$key;
+                        }
+                    }
+
+                    return $result;
+                })->toArray();
+
+                $sheet->loadView($view, compact('items', 'headers'));
+            });
+        })->store($excelType, $dir);
+        $path = $dir . DIRECTORY_SEPARATOR . $cacheName . '.' . $excelType;
+        $filename = $name . '.' . $excelType;
+        $file = new UploadedFile($path, $filename);
+
+        $path = $file->storePubliclyAs($excelType, $filename);
+
+        return Storage::url($path);
+    }
+
     /**
      * @param \PHPExcel $sheet
      * @param bool $withOutFirstRow

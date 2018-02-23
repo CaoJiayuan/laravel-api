@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Builder;
  * Class SheetModel
  * @package CaoJiayuan\LaravelApi\Database\Eloquent
  * @method static string exportSheet($name)
+ * @method static string exportSheetFromBlade($view,$name)
  */
 class SheetModel extends Model
 {
@@ -33,6 +34,11 @@ class SheetModel extends Model
         Builder::macro('exportSheet', function ($name) use ($model) {
            $collection = $this->get();
            return $model->exportExcel($collection, $name);
+        });
+
+        Builder::macro('exportSheetFromBlade', function ($view, $name) use ($model) {
+           $collection = $this->get();
+           return $model->exportFromBlade($collection, $view, $name);
         });
         return parent::newEloquentBuilder($query);
     }
