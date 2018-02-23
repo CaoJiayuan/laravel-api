@@ -48,7 +48,7 @@ trait ExcelEntity
 
     public function getExcelCastFormat($cast)
     {
-        return array_get($this->getExcelFormatMap(), $cast, ExcelFormat::FORMAT_TEXT);
+        return array_get($this->getExcelFormatMap(), $cast, $cast);
     }
 
 
@@ -82,7 +82,7 @@ trait ExcelEntity
                 /** @var LaravelExcelWriter $excel */
                 $excel->sheet('sheet1', function ($sheet) {
                     /** @var LaravelExcelWorksheet $sheet */
-                    $headers = $this->getExcelHeaders();
+                    $headers = $this->getImportHeaders();
                     $array = [array_values($headers)];
                     $columns = range('A', 'Z');
                     $c = 0;
@@ -95,8 +95,15 @@ trait ExcelEntity
                     if ($template instanceof Arrayable) {
                         $template = $template->toArray();
                     }
+                    if ($template) {
+                        if (!is_array(reset($template))) {
+                            $template = [$template];
+                        }
+                        foreach ($template as $item) {
+                            array_push($array, $item);
+                        }
+                    }
 
-                    $template && array_push($array, $template);
                     $sheet->fromArray($array, null, 'A1', false, false)->freezeFirstRow();
                 });
             })->store($excelType, $dir);
@@ -387,6 +394,10 @@ trait ExcelEntity
                     $column => $format
                 ]);
             }
+        } else {
+            $sheet->setColumnFormat([
+                $column => ExcelFormat::FORMAT_TEXT
+            ]);
         }
     }
 
@@ -432,6 +443,11 @@ trait ExcelEntity
     public function getExcelHeaders()
     {
         return [];
+    }
+
+    public function getImportHeaders()
+    {
+        return $this->getExcelHeaders();
     }
 
     protected function shouldCacheTemplate()

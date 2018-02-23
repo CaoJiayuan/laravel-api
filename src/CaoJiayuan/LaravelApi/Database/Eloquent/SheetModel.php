@@ -52,4 +52,9 @@ class SheetModel extends Model
     {
         return $this->excelColumnCasts;
     }
+
+    public static function getImportSheetTemplate()
+    {
+        return (new static())->getImportTemplate();
+    }
 }
