@@ -93,6 +93,11 @@ if (!function_exists('array_find')) {
 }
 
 if (!function_exists('promise')) {
+    /**
+     * @param callable $promising
+     * @param array $params
+     * @return Promise
+     */
     function promise(callable $promising, $params = [])
     {
         return Promise::resolve($promising, $params);

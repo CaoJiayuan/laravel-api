@@ -77,6 +77,11 @@ class Promise implements PromiseInterface, Jsonable
         return $this;
     }
 
+    /**
+     * @param callable $executor
+     * @param array $params
+     * @return static
+     */
     public static function resolve(callable $executor, $params = [])
     {
         return new static($executor, $params);

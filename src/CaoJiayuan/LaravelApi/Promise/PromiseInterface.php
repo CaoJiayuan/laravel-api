@@ -10,9 +10,9 @@ namespace CaoJiayuan\LaravelApi\Promise;
 
 interface PromiseInterface
 {
-    const PENDING = 0;
-    const FULFILLED = 1;
-    const REJECTED = 2;
+    const PENDING = 'pending';
+    const FULFILLED = 'fulfilled';
+    const REJECTED = 'rejected';
 
     public function then(callable $onFulfilled);
 
