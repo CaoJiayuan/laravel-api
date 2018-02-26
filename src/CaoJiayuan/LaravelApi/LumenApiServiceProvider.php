@@ -25,8 +25,9 @@ class LumenApiServiceProvider extends ServiceProvider
         }
         $app->register(LumenServiceProvider::class);
         $this->setLogWriter();
-        $this->registerCommands();
-
+        if (PHP_SAPI == 'cli') {
+            $this->registerCommands();
+        }
     }
 
     protected function setLogWriter()
@@ -34,10 +35,10 @@ class LumenApiServiceProvider extends ServiceProvider
         if (!config('laravel-api.separate_log_file')) {
             return;
         }
-        /** @var Logger $writer */
-        $writer = $this->app['log'];
 
         if (PHP_SAPI == 'cli') {
+            /** @var Logger $writer */
+            $writer = $this->app['log'];
             $writer->popHandler();
             $writer->setHandlers([$this->getCliMonologHandler()]);
         }
