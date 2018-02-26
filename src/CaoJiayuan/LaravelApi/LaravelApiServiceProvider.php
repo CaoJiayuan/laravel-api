@@ -53,7 +53,7 @@ class LaravelApiServiceProvider extends ServiceProvider
         $this->registerCommands();
     }
 
-    public function setLogWriter()
+    protected function setLogWriter()
     {
         if (!config('laravel-api.separate_log_file')) {
             return;
@@ -66,7 +66,7 @@ class LaravelApiServiceProvider extends ServiceProvider
         }
     }
 
-    public function mergeConfig()
+    protected function mergeConfig()
     {
         foreach ($this->configs as $key) {
             $this->mergeConfigFrom(__DIR__.'/../../config/'. $key. '.php', $key);
