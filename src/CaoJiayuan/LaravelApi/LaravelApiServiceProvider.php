@@ -12,6 +12,7 @@ namespace CaoJiayuan\LaravelApi;
 use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
 use CaoJiayuan\LaravelApi\Http\Proxy\HttpProxyCommand;
 use CaoJiayuan\LaravelApi\Http\Server\ServerCommand;
+use CaoJiayuan\LaravelApi\WebSocket\ServerCommand as WsServerCommand;
 use Illuminate\Log\Writer;
 use Illuminate\Support\ServiceProvider;
 use Mnabialek\LaravelSqlLogger\Providers\ServiceProvider as SqlLoggerServiceProvider;
@@ -50,7 +51,9 @@ class LaravelApiServiceProvider extends ServiceProvider
         $this->app->register(SqlLoggerServiceProvider::class);
         $this->app->register(LaravelServiceProvider::class);
         $this->setLogWriter();
-        $this->registerCommands();
+        if (PHP_SAPI == 'cli') {
+            $this->registerCommands();
+        }
     }
 
     protected function setLogWriter()
@@ -58,9 +61,10 @@ class LaravelApiServiceProvider extends ServiceProvider
         if (!config('laravel-api.separate_log_file')) {
             return;
         }
-        /** @var Writer $writer */
-        $writer = $this->app['log'];
+
         if (PHP_SAPI == 'cli') {
+            /** @var Writer $writer */
+            $writer = $this->app['log'];
             $writer->getMonolog()->popHandler();
             $writer->useFiles(storage_path('logs/laravel-cli.log'));
         }
@@ -77,8 +81,10 @@ class LaravelApiServiceProvider extends ServiceProvider
     {
         $this->registerServerCommend();
         $this->registerProxyCommend();
+        $this->registerWsCommend();
         $this->commands(['command.laravel-api.server']);
         $this->commands(['command.laravel-api.proxy']);
+        $this->commands(['command.laravel-api.ws']);
     }
 
     protected function registerServerCommend()
@@ -92,6 +98,12 @@ class LaravelApiServiceProvider extends ServiceProvider
     {
         $this->app->singleton('command.laravel-api.proxy', function ($app) {
             return new HttpProxyCommand();
+        });
+    }
+    protected function registerWsCommend()
+    {
+        $this->app->singleton('command.laravel-api.ws', function ($app) {
+            return new WsServerCommand();
         });
     }
 }
