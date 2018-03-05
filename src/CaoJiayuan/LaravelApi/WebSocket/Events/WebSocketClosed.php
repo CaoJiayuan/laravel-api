@@ -8,7 +8,7 @@
 
 namespace CaoJiayuan\LaravelApi\WebSocket\Events;
 
-class WebSocketClosed extends WebSocketConnected
+class WebSocketClosed extends ConnectionEvent
 {
 
 }
