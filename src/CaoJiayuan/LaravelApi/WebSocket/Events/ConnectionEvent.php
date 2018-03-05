@@ -13,6 +13,7 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Workerman\Connection\TcpConnection;
+use Workerman\Worker;
 
 /**
  * Class ConnectionEvent
@@ -28,9 +29,15 @@ class ConnectionEvent
      */
     public $connection;
 
-    public function __construct(TcpConnection $connection)
+    /**
+     * @var Worker
+     */
+    public $worker;
+
+    public function __construct(Worker $worker, TcpConnection $connection)
     {
         $this->connection = $connection;
+        $this->worker = $worker;
     }
 
     public function __call($name, $arguments)
@@ -40,5 +47,18 @@ class ConnectionEvent
         }
 
         throw new BadMethodCallException("Method {$name} does not exist.");
+    }
+
+    /**
+     * @param $data
+     */
+    public function broadcastMessage($data)
+    {
+        /** @var TcpConnection[] $connections */
+        $connections = $this->worker->connections;
+
+        foreach ($connections as $connection) {
+            $connection->send($data);
+        }
     }
 }

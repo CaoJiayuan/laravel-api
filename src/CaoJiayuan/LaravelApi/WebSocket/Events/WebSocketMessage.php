@@ -12,6 +12,7 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Workerman\Connection\TcpConnection;
+use Workerman\Worker;
 
 class WebSocketMessage extends ConnectionEvent
 {
@@ -19,9 +20,17 @@ class WebSocketMessage extends ConnectionEvent
 
     public $message;
 
-    public function __construct(TcpConnection $connection, $message)
+    public function __construct(Worker $worker, TcpConnection $connection, $message)
     {
         $this->message = $message;
-        parent::__construct($connection);
+        parent::__construct($worker, $connection);
+    }
+
+    public function convertMessage($assoc = true)
+    {
+        if ($m = json_decode($this->message, $assoc)) {
+            $this->message = $m;
+        }
+        return $this;
     }
 }

@@ -33,6 +33,8 @@ class ServerCommand extends Command
      */
     protected $description = 'A websocket server using workerman';
 
+    protected $worker;
+
     public function handle()
     {
         $port = $this->option('port') ?: 3000;
@@ -47,28 +49,28 @@ class ServerCommand extends Command
             $argv[2] = '';
         }
 
-        $worker = new Worker("websocket://0.0.0.0:{$port}");
+        $this->worker = new Worker("websocket://0.0.0.0:{$port}");
 
-        $worker->count = $count;
-        $worker->onConnect = [$this, 'onConnect'];
-        $worker->onMessage = [$this, 'onMessage'];
-        $worker->onClose = [$this, 'onClose'];
-        event(new WorkerStarted($worker));
+        $this->worker->count = $count;
+        $this->worker->onConnect = [$this, 'onConnect'];
+        $this->worker->onMessage = [$this, 'onMessage'];
+        $this->worker->onClose = [$this, 'onClose'];
+        event(new WorkerStarted($this->worker));
         Worker::runAll();
     }
 
     public function onConnect($connection)
     {
-        event(new WebSocketConnected($connection));
+        event(new WebSocketConnected($this->worker, $connection));
     }
 
     public function onMessage($connection, $data)
     {
-        event(new WebSocketMessage($connection, $data));
+        event(new WebSocketMessage($this->worker, $connection, $data));
     }
 
     public function onClose($connection)
     {
-        event(new WebSocketClosed($connection));
+        event(new WebSocketClosed($this->worker, $connection));
     }
 }
