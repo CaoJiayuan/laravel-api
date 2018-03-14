@@ -319,7 +319,7 @@ trait ExcelEntity
      * @param bool $validate
      * @return array
      */
-    protected function getExcelFirstRow($interator, $validate = true)
+    protected function getExcelFirstRow($interator, $validate = false)
     {
         $row = [];
         foreach ($interator as $inter) {

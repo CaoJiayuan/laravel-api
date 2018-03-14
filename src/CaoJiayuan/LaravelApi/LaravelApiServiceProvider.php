@@ -47,8 +47,11 @@ class LaravelApiServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfig();
-        $this->app->register(IdeHelperServiceProvider::class);
-        $this->app->register(SqlLoggerServiceProvider::class);
+        if (config('app.env') == 'local') {
+            $this->app->register(IdeHelperServiceProvider::class);
+            $this->app->register(SqlLoggerServiceProvider::class);
+        }
+
         $this->app->register(LaravelServiceProvider::class);
         $this->setLogWriter();
         if (PHP_SAPI == 'cli') {
@@ -58,6 +61,10 @@ class LaravelApiServiceProvider extends ServiceProvider
 
     protected function setLogWriter()
     {
+        if ($this->app->version() >= 5.6) {
+            return;
+        }
+
         if (!config('laravel-api.separate_log_file')) {
             return;
         }
