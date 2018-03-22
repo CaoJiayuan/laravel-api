@@ -18,6 +18,7 @@ use Illuminate\Http\Response;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesser;
 use Workerman\Connection\TcpConnection;
+use Workerman\Lib\Timer;
 use Workerman\Protocols\Http;
 use Workerman\Worker;
 
@@ -51,8 +52,8 @@ class ServerCommand extends Command
 
     public function __construct()
     {
-        $this->initCommand();
         parent::__construct();
+        $this->initCommand();
     }
 
     public function initCommand()
@@ -92,6 +93,8 @@ class ServerCommand extends Command
         }
 
         $httpWorker = new Worker("http://0.0.0.0:{$port}");
+
+        $this->beforeHandle($httpWorker);
 
         $httpWorker->name = $this->appName;
         $httpWorker->count = $count;
@@ -152,6 +155,11 @@ class ServerCommand extends Command
      */
     public function beforeRequest($request)
     {
+    }
+
+    public function beforeHandle(Worker $worker)
+    {
+
     }
 
     /**
