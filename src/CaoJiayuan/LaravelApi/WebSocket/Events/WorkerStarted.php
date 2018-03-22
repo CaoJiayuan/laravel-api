@@ -9,13 +9,12 @@
 namespace CaoJiayuan\LaravelApi\WebSocket\Events;
 
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Workerman\Worker;
 
 class WorkerStarted
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use InteractsWithSockets, SerializesModels;
 
     /**
      * @var Worker

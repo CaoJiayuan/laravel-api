@@ -9,14 +9,13 @@
 namespace CaoJiayuan\LaravelApi\WebSocket\Events;
 
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Workerman\Connection\TcpConnection;
 use Workerman\Worker;
 
 class WebSocketMessage extends ConnectionEvent
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use InteractsWithSockets, SerializesModels;
 
     public $message;
 

@@ -30,7 +30,7 @@ class ServerCommand extends Command
      * @var string
      */
 
-    protected $signature = 'laravel-api:server {cmd=restart : Command to send} {--port=8888 : Listen port} {--count=4 : Work process} {--daemon=1 : Daemon mode}';
+    protected $signature = 'api-util:server {cmd=restart : Command to send} {--port=8888 : Listen port} {--count=4 : Work process} {--daemon=1 : Daemon mode}';
 
     /**
      * The console command description.

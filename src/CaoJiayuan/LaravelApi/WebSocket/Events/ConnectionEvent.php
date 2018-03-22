@@ -10,7 +10,6 @@ namespace CaoJiayuan\LaravelApi\WebSocket\Events;
 
 use BadMethodCallException;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Workerman\Connection\TcpConnection;
 use Workerman\Worker;
@@ -22,7 +21,7 @@ use Workerman\Worker;
  */
 class ConnectionEvent
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use InteractsWithSockets, SerializesModels;
 
     /**
      * @var TcpConnection
