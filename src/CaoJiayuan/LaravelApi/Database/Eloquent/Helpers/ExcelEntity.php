@@ -122,12 +122,14 @@ trait ExcelEntity
         return Storage::url($p);
     }
 
-    public function importExcel($file)
+    public function importExcel($file, $withOutFirstRow = true, $validate = true)
     {
-        Excel::load($file, function ($reader) {
+        Excel::load($file, function ($reader) use ($withOutFirstRow, $validate) {
             /** @var LaravelExcelReader $reader */
             foreach ($reader as $sheet) {
-                $rows = $this->getImportRows($sheet);
+                /** @var \PHPExcel $sheet */
+                $rows = $this->getImportRows($sheet, $withOutFirstRow , 1, null, $validate);
+
                 $this->validateImport($rows);
 
                 try {
@@ -229,9 +231,10 @@ trait ExcelEntity
      * @param bool $withOutFirstRow
      * @param int $page
      * @param null $limit
+     * @param $validate
      * @return array
      */
-    public function getImportRows($sheet, $withOutFirstRow = true, $page = 1, $limit = null)
+    public function getImportRows($sheet, $withOutFirstRow = true, $page = 1, $limit = null, $validate = true)
     {
         $headers = $this->getExcelHeaders();
 
@@ -240,7 +243,7 @@ trait ExcelEntity
         $rows = [];
         $ke = 0;
         if ($withOutFirstRow) {
-            $head = $this->getExcelFirstRow($interator);
+            $head = $this->getExcelFirstRow($interator, $validate);
             $interator->resetStart(2);
         } else {
             $head = array_values($headers);
@@ -319,7 +322,7 @@ trait ExcelEntity
      * @param bool $validate
      * @return array
      */
-    protected function getExcelFirstRow($interator, $validate = false)
+    protected function getExcelFirstRow($interator, $validate = true)
     {
         $row = [];
         foreach ($interator as $inter) {
@@ -333,20 +336,16 @@ trait ExcelEntity
         if ($validate) {
             $valid = true;
             $excelHeaders = $this->getExcelHeaders();
-            if (count($row) != count($excelHeaders)) {
+            $has = 0;
+            $r = array_unique($row);
+            $headers = array_values($excelHeaders);
+            foreach ($r as $item) {
+                if (in_array($item, $headers)) {
+                    $has++;
+                }
+            }
+            if ($has != count($headers)) {
                 $valid = false;
-            } else {
-                $has = 0;
-                $r = array_unique($row);
-                $headers = array_values($excelHeaders);
-                foreach ($r as $item) {
-                    if (in_array($item, $headers)) {
-                        $has++;
-                    }
-                }
-                if ($has != count($headers)) {
-                    $valid = false;
-                }
             }
 
             if (!$valid) {
