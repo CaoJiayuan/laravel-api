@@ -116,3 +116,9 @@ $file = 'test.xlsx';
 App\Models\ExcelModel::importSheet($file);
 
 ```
+
+#### 5. Recommended
+
+```workerman/workerman``` required to use server/ws command 
+
+```maatwebsite/excel``` required to use excel model functional.
