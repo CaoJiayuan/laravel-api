@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
  * @package CaoJiayuan\LaravelApi\Database\Eloquent
  * @method static string exportSheet($name)
  * @method static string exportSheetFromBlade($view,$name)
+ * @method static void importSheet($file, $withOutFirstRow = true, $validate = true)
  */
 class SheetModel extends Model
 {
@@ -30,6 +31,10 @@ class SheetModel extends Model
     public function newEloquentBuilder($query)
     {
         $model = $this;
+
+        Builder::macro('importSheet', function ($file,  $withOutFirstRow = true, $validate = true) use ($model) {
+           $model->importExcel($file,  $withOutFirstRow, $validate);
+        });
 
         Builder::macro('exportSheet', function ($name) use ($model) {
            $collection = $this->get();
