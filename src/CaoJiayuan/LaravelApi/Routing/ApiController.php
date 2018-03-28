@@ -8,6 +8,7 @@
 
 namespace CaoJiayuan\LaravelApi\Routing;
 
+use CaoJiayuan\LaravelApi\Http\Response\ResponseHelper;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -17,7 +18,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ApiController extends Controller
 {
-    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+    use AuthorizesRequests, DispatchesJobs, ValidatesRequests, ResponseHelper;
 
     /**
      * @var Request
@@ -64,16 +65,5 @@ class ApiController extends Controller
         $data = $this->request->only($keys);
         return $data;
     }
-
-    public function respondMessage($status, $message)
-    {
-        throw new HttpException($status, $message);
-    }
-
-    public function respond404($message)
-    {
-        $this->respondMessage(404, $message);
-    }
-
 
 }

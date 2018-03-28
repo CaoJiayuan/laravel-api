@@ -8,6 +8,7 @@
 
 namespace CaoJiayuan\LaravelApi\Http\Repository;
 
+use CaoJiayuan\LaravelApi\Database\Eloquent\Helpers\Filterable;
 use CaoJiayuan\LaravelApi\Pagination\PageHelper;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Request;
 
 class Repository
 {
-    use PageHelper;
+    use PageHelper, Filterable;
 
     public function getSearchAbleData($model, array $search = [], \Closure $closure = null, \Closure $trans = null)
     {
