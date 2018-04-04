@@ -15,6 +15,9 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesser;
 use Workerman\Connection\TcpConnection;
@@ -31,7 +34,7 @@ class ServerCommand extends Command
      * @var string
      */
 
-    protected $signature = 'api-util:server {cmd=restart : Command to send} {--port=8888 : Listen port} {--count=4 : Work process} {--daemon=1 : Daemon mode}';
+    protected $signature = 'api-util:server {cmd=restart : Command to send} {--port=8888 : Listen port} {--count=4 : Work process} {--daemon=1 : Daemon mode} {--log=1 : Enable log}';
 
     /**
      * The console command description.
@@ -48,12 +51,30 @@ class ServerCommand extends Command
     protected $appName = 'Laravel server';
 
     protected $keepAlive = true;
+    /**
+     * @var Logger
+     */
+    protected $logger;
 
 
     public function __construct()
     {
+        $this->initLogger();
         parent::__construct();
         $this->initCommand();
+    }
+
+    public function initLogger()
+    {
+        $handler = (new StreamHandler($this->getLogPath(), Logger::DEBUG))
+            ->setFormatter(new LineFormatter(null, null, true, true));
+        $this->logger =  new Logger('Http server logger');
+        $this->logger->setHandlers([$handler]);
+    }
+
+    protected function getLogPath()
+    {
+        return storage_path('logs/http-server.log');
     }
 
     public function initCommand()
@@ -83,6 +104,7 @@ class ServerCommand extends Command
         $count = $this->option('count') ?: 4;
         $cmd = $this->argument('cmd') ?: 'restart';
         $d = $this->option('daemon') ?: 0;
+        $l = $this->option('log') ?: 1;
 
         global $argv;
         $argv[1] = $cmd;
@@ -102,15 +124,17 @@ class ServerCommand extends Command
         /**
          * @param Worker $worker
          */
-        $httpWorker->onWorkerStart = function ($worker) use ($port) {
-            $this->info("Http server open on [0.0.0.0:$port], worker: [{$worker->id}]");
+        $httpWorker->onWorkerStart = function ($worker) use ($port, $l) {
+            $msg = "Http server open on [0.0.0.0:$port], worker: [{$worker->id}]";
+            $this->info($msg);
+            $l && $this->logger->warn($msg);
         };
 
         /**
          * @param TcpConnection $connection
          * @param $data
          */
-        $httpWorker->onMessage = function ($connection, $data) use ($d) {
+        $httpWorker->onMessage = function ($connection, $data) use ($d, $l) {
             $requestStart = microtime(true);
 
             $request = $this->generateRequest();
@@ -127,7 +151,9 @@ class ServerCommand extends Command
             $this->keepAlive || $connection->close();
             $requestEnd = microtime(true);
             $requestTime = round($requestEnd - $requestStart, 4);
-            $d || $this->info("Handle request ({$request->getMethod()})[{$request->url()}] from [{$request->ip()}], status: ({$response->status()}), time : [{$requestTime}s]");
+            $msg = "Handle request ({$request->getMethod()})[{$request->url()}] from [{$request->ip()}], status: ({$response->status()}), time : [{$requestTime}s]";
+            $d || $this->info($msg);
+            $l && $this->logger->info($msg);
         };
 
         Worker::runAll();

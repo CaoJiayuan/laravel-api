@@ -18,7 +18,7 @@ class LumenServerCommand extends ServerCommand
 {
 
 
-    protected $signature = 'api-util:server {cmd=restart : Command to send} {--port=8888 : Listen port} {--count=4 : Work process} {--daemon=1 : Daemon mode}';
+    protected $signature = 'api-util:server {cmd=restart : Command to send} {--port=8888 : Listen port} {--count=4 : Work process} {--daemon=1 : Daemon mode} {--log=1 : Enable log}';
 
     /**
      * The console command description.
