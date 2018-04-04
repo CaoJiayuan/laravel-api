@@ -66,8 +66,7 @@ class ServerCommand extends Command
 
     public function initLogger()
     {
-        $handler = (new StreamHandler($this->getLogPath(), Logger::DEBUG))
-            ->setFormatter(new LineFormatter(null, null, true, true));
+        $handler = $this->getLoggerHandler();
         $this->logger = new Logger('Http server logger');
         $this->logger->setHandlers([$handler]);
     }
@@ -323,5 +322,15 @@ class ServerCommand extends Command
         $response->setContent($content);
 
         return $response;
+    }
+
+    /**
+     * @return $this|\Monolog\Handler\HandlerInterface
+     */
+    protected function getLoggerHandler()
+    {
+        $handler = (new StreamHandler($this->getLogPath(), Logger::DEBUG))
+            ->setFormatter(new LineFormatter(null, null, true, true));
+        return $handler;
     }
 }
