@@ -103,7 +103,7 @@ class ServerCommand extends Command
         $count = $this->option('count') ?: 4;
         $cmd = $this->argument('cmd') ?: 'restart';
         $d = $this->option('daemon') ?: 0;
-        $l = $this->option('log') ?: 1;
+        $l = $this->option('log');
 
         global $argv;
         $argv[1] = $cmd;
