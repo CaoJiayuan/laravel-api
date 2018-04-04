@@ -7,12 +7,9 @@
  */
 
 namespace CaoJiayuan\LaravelApi\Http\Server;
+
 use Illuminate\Support\Facades\Session;
 use Laravel\Lumen\Application;
-use Workerman\Connection\TcpConnection;
-use Workerman\Lib\Timer;
-use Workerman\Protocols\Http;
-use Workerman\Worker;
 
 class LumenServerCommand extends ServerCommand
 {
@@ -52,6 +49,7 @@ class LumenServerCommand extends ServerCommand
     {
         return base_path('public');
     }
+
     public function handleHttpRequest($request)
     {
         return $this->app->handle($request);
