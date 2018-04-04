@@ -58,9 +58,10 @@ trait ExceptionRenderer
             }
             $debug = env('APP_DEBUG');
 
-            if (!$debug) {
+            if (!$debug && $code >= 500) {
                 $message = 'Server error';
             }
+
             $data = ['code' => $code, 'errors' => $errors, 'message' => $message];
             if ($debug && $code >= 500) {
                 $file = $exception->getFile();
@@ -70,6 +71,7 @@ trait ExceptionRenderer
                 $data['file'] = "$file. Line:[$line]";
                 $data['trace'] = $this->parseTrace($exception);
             }
+
 
             return response()->json($data, $code);
         }
