@@ -68,7 +68,7 @@ class ServerCommand extends Command
     {
         $handler = (new StreamHandler($this->getLogPath(), Logger::DEBUG))
             ->setFormatter(new LineFormatter(null, null, true, true));
-        $this->logger =  new Logger('Http server logger');
+        $this->logger = new Logger('Http server logger');
         $this->logger->setHandlers([$handler]);
     }
 
@@ -125,7 +125,7 @@ class ServerCommand extends Command
          * @param Worker $worker
          */
         $httpWorker->onWorkerStart = function ($worker) use ($port, $l) {
-            $msg = "Http server open on [0.0.0.0:$port], worker: [{$worker->id}]";
+            $msg = "Http server opened on [0.0.0.0:$port], worker: [{$worker->id}]";
             $this->info($msg);
             $l && $this->logger->warn($msg);
         };
@@ -151,12 +151,23 @@ class ServerCommand extends Command
             $this->keepAlive || $connection->close();
             $requestEnd = microtime(true);
             $requestTime = round($requestEnd - $requestStart, 4);
-            $msg = "Handle request ({$request->getMethod()})[{$request->url()}] from [{$request->ip()}], status: ({$response->status()}), time : [{$requestTime}s]";
+            $msg = $this->formatRequestLog($request, $response, $requestTime);
             $d || $this->info($msg);
             $l && $this->logger->info($msg);
         };
 
         Worker::runAll();
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param float $requestTime
+     * @return string
+     */
+    protected function formatRequestLog($request, $response, $requestTime)
+    {
+        return "Handle request ({$request->getMethod()})[{$request->url()}] from [{$request->ip()}], status: ({$response->status()}), time : [{$requestTime}s]";
     }
 
     public function generateRequest()
