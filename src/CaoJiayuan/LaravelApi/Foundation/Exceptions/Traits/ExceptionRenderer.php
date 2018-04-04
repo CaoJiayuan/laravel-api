@@ -8,6 +8,7 @@
 
 namespace CaoJiayuan\LaravelApi\Foundation\Exceptions\Traits;
 
+use CaoJiayuan\LaravelApi\Foundation\Exceptions\CustomHttpException;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -56,13 +57,23 @@ trait ExceptionRenderer
                 $errors = $exception->validator->getMessageBag();
                 $message = $errors->first();
             }
+            $respondCode = $code;
+
+            if ($exception instanceof CustomHttpException){
+                $respondCode = $exception->getCustomCode();
+                $errors = $exception->getErrorData();
+                $message = $exception->getMessage();
+            }
+
             $debug = env('APP_DEBUG');
 
             if (!$debug && $code >= 500) {
                 $message = 'Server error';
             }
 
-            $data = ['code' => $code, 'errors' => $errors, 'message' => $message];
+            $data = ['code' => $respondCode, 'errors' => $errors, 'message' => $message];
+
+
             if ($debug && $code >= 500) {
                 $file = $exception->getFile();
                 $file = str_replace(base_path() . DIRECTORY_SEPARATOR, '', $file);
