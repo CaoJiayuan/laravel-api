@@ -45,6 +45,9 @@ class Hub
     public static function formatSubscriber($subscriber)
     {
         $sub = function ($payload) use ($subscriber) {
+            if ($payload === null) {
+                return $payload;
+            }
             if (static::shouldBeJson($payload)) {
                 $payload = static::morphToJson($payload);
             }
