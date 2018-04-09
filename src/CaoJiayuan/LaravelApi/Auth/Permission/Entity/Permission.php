@@ -159,4 +159,27 @@ class Permission extends EntrustPermission
     {
         return static::whereIn('name', $names)->get();
     }
+
+    public static function flattened($roles)
+    {
+        $ids = [];
+        foreach ($roles as $role) {
+            $ids[] = $role->id;
+        }
+        $prefix = \DB::getTablePrefix();
+        $i = implode(',', $ids) ?: "''";
+        $builder = Permission::leftJoin('permission_role', 'permission_role.permission_id', '=', 'permissions.id');
+        $select = \DB::raw("CASE WHEN {$prefix}permission_role.role_id IN ($i) THEN true ELSE false END AS granted");
+        $su = config('entrust.entrust.name');
+        foreach ($roles as $role) {
+            if (array_get($role, 'name') == $su) {
+                $select = \DB::raw("true AS granted");
+                break;
+            }
+        }
+        return $builder->select([
+            'permissions.*',
+            $select
+        ])->get()->toArray();
+    }
 }
