@@ -135,7 +135,7 @@ class Permission extends EntrustPermission
 
         $builder->addSelect($select);
 
-        self::beforeTree($builder);
+        static::beforeTree($builder);
         return $builder->get();
     }
 
