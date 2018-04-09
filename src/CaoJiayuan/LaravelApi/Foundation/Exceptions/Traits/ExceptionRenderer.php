@@ -151,7 +151,8 @@ trait ExceptionRenderer
 
         if (defined($model .'::DISPLAY_NAME')) {
             $displayName = $model::DISPLAY_NAME;
-            $message = __('errors.modelNotFound', [
+
+            $message = trans('errors.modelNotFound', [
                 'model' => $displayName
             ]);
         }
