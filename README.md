@@ -117,7 +117,38 @@ App\Models\ExcelModel::importSheet($file);
 
 ```
 
-#### 5. Recommended
+
+#### 5.Helpers
+
+#####  RequestHelper
+* Trait ```CaoJiayuan\LaravelApi\Http\Request\RequestHelper```
+* Method ```getValidatedData(array $rules, array $messages = [], array $customAttributes = [])```
+```php
+<?php
+namespace App\Http\Controllers;
+
+use CaoJiayuan\LaravelApi\Http\Request\RequestHelper;
+
+class FooController extends Controller
+{
+    use RequestHelper;
+    //
+    
+    public function post(){
+        $data = $this->getValidatedData([
+            'name' => 'required', // Key => Rule,
+            'foo', //Only key [default null]
+            'bar' => ['required'/* or null*/, 1], // // Key => [Rule, default],
+            'baz' => ['required'/* or null*/, function($value){
+                return $value + 1;
+            }] // Key => [Rule, resolver],
+        ]);
+    }
+}
+
+```
+
+#### 6. Recommended
 
 ```workerman/workerman``` required to use server/ws command 
 
