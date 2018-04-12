@@ -2,7 +2,7 @@
 
 ### Install
 ```composer require cao-jiayuan/laravel-api[:dev-master]```
-### Provider
+### Providers
 
 * Laravel ```CaoJiayuan\LaravelApi\LaravelApiServiceProvider```
 * Lumen ```CaoJiayuan\LaravelApi\LumenApiServiceProvider```
