@@ -142,7 +142,7 @@ class FooController extends Controller
             'baz' => ['required'/* or null*/, function($value){
                 return $value + 1;
             }] // Key => [Rule, resolver],
-        ]);
+        ], ['name.required' => '......'], ['foo' => '-_-!!!']);
     }
 }
 
