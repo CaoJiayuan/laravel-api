@@ -16,9 +16,9 @@ class Hub
 {
     use JsonHelper;
 
-    protected static $subscribes = [];
+    protected static $subscribes = [];// [{channel: [subscriberId, ...]}]
 
-    protected static $subscribers = [];
+    protected static $subscribers = []; // [{subscriberId: resolver}]
 
     public static function subscribe($channels, $subscriber)
     {
@@ -39,12 +39,26 @@ class Hub
 
     public static function unSubscribe($channels, $subscriber)
     {
+        $subId = self::getSubscriberId($subscriber);
 
+        if (!is_array($channels)) {
+            $channels = [$channels];
+        }
+        foreach ($channels as $channel) {
+            if (!empty(static::$subscribes[$channel])) {
+                $subIds = static::$subscribes[$channel];
+                static::$subscribes[$channel] = array_filter($subIds, function ($id) use ($subId) {
+                    return $id != $subId;
+                });
+            }
+        }
     }
 
     public static function formatSubscriber($subscriber)
     {
-        $sub = function ($payload) use ($subscriber) {
+        $id = self::getSubscriberId($subscriber);
+
+        $sub = function ($payload) use ($subscriber, $id) {
             if ($payload === null) {
                 return $payload;
             }
@@ -59,7 +73,7 @@ class Hub
             }
             return $payload;
         };
-        $id = self::getSubscriberId($subscriber);
+
         static::$subscribers[$id] = $sub;
         return $id;
     }
@@ -79,7 +93,7 @@ class Hub
         throw new \InvalidArgumentException("Argument [subscriber] expect instance of {$expect}, {$giving} giving.");
     }
 
-    public static function dispatch($channels, $payload, $once = false)
+    public static function dispatch($channels, $payload, $subscriber, $once = false)
     {
         if (!is_array($channels)) {
             $channels = [$channels];
@@ -87,13 +101,20 @@ class Hub
         foreach ($channels as $channel) {
             if (isset(static::$subscribes[$channel])) {
                 $subIds = static::$subscribes[$channel];
-                foreach ($subIds as $id) {
-                    $sub = static::$subscribers[$id];
-                    $sub && $sub($payload);
-                }
+                $subscriberId = self::getSubscriberId($subscriber);
+                if (in_array($subscriberId, $subIds)) { // Is channel subscriber
+                    foreach ($subIds as $id) { // Send message
+                        if (isset(static::$subscribers[$id])) {
+                            $sub = static::$subscribers[$id];
+                            $sub && $sub($payload);
+                        }
+                    }
 
-                if ($once) {
-                    static::$subscribes[$channel] = [];
+                    if ($once) {
+                        static::$subscribes[$channel] = array_filter($subIds, function ($id) use ($subscriberId) {
+                            return $id != $subscriberId;
+                        });
+                    }
                 }
             }
         }
