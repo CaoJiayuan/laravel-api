@@ -9,6 +9,7 @@
 namespace CaoJiayuan\LaravelApi\Pagination;
 
 
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -62,6 +63,10 @@ trait PageHelper
     {
         if ($page < 1 || !$page) {
             $page = 1;
+        }
+
+        if ($array instanceof Arrayable) {
+            $array = $array->toArray();
         }
 
         $items = array_slice($array, $perPage * ($page - 1), $perPage);
