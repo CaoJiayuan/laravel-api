@@ -12,6 +12,7 @@ namespace CaoJiayuan\LaravelApi\Pagination;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pagination\AbstractPaginator;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Request;
 
@@ -23,6 +24,7 @@ trait PageHelper
      * @param array $columns
      * @param string $pageName
      * @param null $page
+     * @return LengthAwarePaginator|AbstractPaginator
      */
     public function applyPaginate($builder, $perPage = 15, $columns = ['*'], $pageName = 'page', $page = null)
     {
