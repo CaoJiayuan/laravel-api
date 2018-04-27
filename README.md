@@ -58,67 +58,7 @@ php artisan api-util:ws [start|restart|stop|status] [--port=3000] [--count=4] [-
     3. Client closed ```CaoJiayuan\LaravelApi\WebSocket\Events\WebSocketClosed```
     4. Worker started ```CaoJiayuan\LaravelApi\WebSocket\Events\WorkerStarted```
 
-#### 4.Interact with Excel
-
-* Extends ```CaoJiayuan\LaravelApi\Database\Eloquent\SheetModel``` .
-* Excel example
-
-|标题|内容|
-|-|-|
-|Foo|Some random string|
-
-* Overwrite methods/properties
-
-```php
-<?php
-namespace App\Models;
-
-use CaoJiayuan\LaravelApi\Database\Eloquent\SheetModel;
-
-class ExcelModel extends SheetModel {
-    
-    protected $excelHeaders = [
-        'title' => '标题', // 'Table field' => 'Excel header' 
-        'content' => '内容',
-    ];
-    
-    public function getImportTemplateRow() // Import template rows
-    {
-        return [
-            [
-                'title'   => 'aa',
-                'content' => 'test string',
-            ],
-            [
-                'title'   => 'bb',
-                'content' => 'other test string',
-            ]
-        ];
-    }
-    // ....
-}
-
-```
-
-* Export
-```php
-<?php
-$name = 'test.xlsx';
-App\Models\ExcelModel::exportSheet($name);
-App\Models\ExcelModel::where('title', 'foo')->exportSheet($name);
-
-```
-
-* Import
-```php
-<?php
-$file = 'test.xlsx';
-App\Models\ExcelModel::importSheet($file);
-
-```
-
-
-#### 5.Helpers
+#### 4.Helpers
 
 #####  RequestHelper
 * Trait ```CaoJiayuan\LaravelApi\Http\Request\RequestHelper```
@@ -148,8 +88,6 @@ class FooController extends Controller
 
 ```
 
-#### 6. Recommended
+#### 5. Recommended
 
 ```workerman/workerman``` required to use server/ws command 
-
-```maatwebsite/excel``` required to use excel model functional.
