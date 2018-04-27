@@ -40,7 +40,7 @@ class LaravelApiServiceProvider extends ServiceProvider
 
         $this->publishes([
             $resources => $resourcePath,
-            $configs => $configPath
+            $configs   => $configPath
         ]);
     }
 
@@ -61,26 +61,39 @@ class LaravelApiServiceProvider extends ServiceProvider
 
     protected function setLogWriter()
     {
-        if ($this->app->version() >= 5.6) {
-            return;
-        }
-
         if (!config('laravel-api.separate_log_file')) {
             return;
         }
 
         if (PHP_SAPI == 'cli') {
-            /** @var Writer $writer */
-            $writer = $this->app['log'];
-            $writer->getMonolog()->popHandler();
-            $writer->useFiles(storage_path('logs/laravel-cli.log'));
+            if ($this->app->version() >= 5.6) {
+                /** @var \Illuminate\Config\Repository $config */
+                $config = $this->app['config'];
+                $config->set('logging.channels.cli-log', $this->getCliLogChannel());
+                $config->set('logging.default', 'cli-log');
+                return;
+            } else {
+                /** @var Writer $writer */
+                $writer = $this->app['log'];
+                $writer->getMonolog()->popHandler();
+                $writer->useFiles(storage_path('logs/laravel-cli.log'));
+            }
         }
+    }
+
+    protected function getCliLogChannel()
+    {
+        return [
+            'driver' => 'single',
+            'path'   => storage_path('logs/laravel-cli.log'),
+            'level'  => 'debug',
+        ];
     }
 
     protected function mergeConfig()
     {
         foreach ($this->configs as $key) {
-            $this->mergeConfigFrom(__DIR__.'/../../config/'. $key. '.php', $key);
+            $this->mergeConfigFrom(__DIR__ . '/../../config/' . $key . '.php', $key);
         }
     }
 
@@ -107,6 +120,7 @@ class LaravelApiServiceProvider extends ServiceProvider
             return new HttpProxyCommand();
         });
     }
+
     protected function registerWsCommend()
     {
         $this->app->singleton('command.laravel-api.ws', function ($app) {
