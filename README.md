@@ -39,7 +39,7 @@ class Handler extends ExceptionHandler
 Usage
 
 ```bash
-php artisan api-util:server [start|restart|stop|status] [--port=8888] [--count=4] [--daemon=1]
+php artisan api-util:server [start|restart|stop|status] [--port=8888 : Listen port] [--count=4 : Work process] [--daemon=1 : Daemon mode]
 ```
 You can write you APIs as usual. each time you change the code, you should run ```php artisan api-util:server restart```
 
