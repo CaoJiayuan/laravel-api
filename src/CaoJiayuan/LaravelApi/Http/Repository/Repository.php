@@ -42,7 +42,13 @@ class Repository
             $builder->where(function ($builder) use ($search, $filter, $table) {
                 foreach ((array)$search as $column) {
                     /** @var Builder $builder */
-                    $builder->orWhere($table . '.' . $column, 'like binary', "%{$filter}%");
+
+                    $key = $column;
+                    if (strpos($column, '.') === false) {
+                        $key = $table . '.' . $column;
+                    }
+
+                    $builder->orWhere($key, 'like binary', "%{$filter}%");
                 }
             });
         }
