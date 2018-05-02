@@ -48,8 +48,17 @@ class ServerCommand extends Command
         } else {
             $argv[2] = '';
         }
+        $context = [];
+        $ssl = $this->getSSL();
+        if (!empty($ssl)) {
+            $context['ssl'] = $ssl;
+        }
 
-        $this->worker = new Worker("websocket://0.0.0.0:{$port}");
+        $this->worker = new Worker("websocket://0.0.0.0:{$port}", $context);
+
+        if (!empty($ssl)) {
+            $this->worker->transport = 'ssl';
+        }
 
         $this->worker->count = $count;
         $this->worker->onConnect = [$this, 'onConnect'];
@@ -72,5 +81,10 @@ class ServerCommand extends Command
     public function onClose($connection)
     {
         event(new WebSocketClosed($this->worker, $connection));
+    }
+
+    protected function getSSL()
+    {
+        return [];
     }
 }

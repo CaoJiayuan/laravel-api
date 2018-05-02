@@ -1,8 +1,6 @@
 <?php
 /**
- * Created by Cao Jiayuan.
- * Date: 17-4-28
- * Time: 上午9:30
+ * Promise implements interact with pipeline
  */
 
 namespace CaoJiayuan\LaravelApi\Promise;
