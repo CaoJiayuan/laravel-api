@@ -29,29 +29,7 @@ class Repository
             'per_page' => 15
         ], $data);
         list($filter, $order, $pageSize) = array_values($data);
-        if (!is_object($model)) {
-            $model = app($model);
-        }
-        if (!$model instanceof Model) {
-            throw new \UnexpectedValueException(__METHOD__ . ' expects parameter 1 to be an object of ' . Model::class . ',' . get_class($model) . ' given');
-        }
-        $builder = $model->newQuery();
-        $table = $model->getTable();
-        $this->resolveSort($model, $order, $builder, $closure);
-        if ($filter && $search) {
-            $builder->where(function ($builder) use ($search, $filter, $table) {
-                foreach ((array)$search as $column) {
-                    /** @var Builder $builder */
-
-                    $key = $column;
-                    if (strpos($column, '.') === false) {
-                        $key = $table . '.' . $column;
-                    }
-
-                    $builder->orWhere($key, 'like binary', "%{$filter}%");
-                }
-            });
-        }
+        $builder = $this->getSearchableBuilder($model, $search, $closure, $order, $filter);
 
         $pager = $this->applyPaginate($builder, $pageSize);
         if ($trans) {
@@ -86,6 +64,42 @@ class Repository
             $builder->orderBy($o, $d);
         }
 
+        return $builder;
+    }
+
+    /**
+     * @param $model
+     * @param array $search
+     * @param \Closure $closure
+     * @param $order
+     * @param $filter
+     * @return Builder
+     */
+    public function getSearchableBuilder($model, array $search = [], \Closure $closure = null, $order = '', $filter = '')
+    {
+        if (!is_object($model)) {
+            $model = app($model);
+        }
+        if (!$model instanceof Model) {
+            throw new \UnexpectedValueException(__METHOD__ . ' expects parameter 1 to be an object of ' . Model::class . ',' . get_class($model) . ' given');
+        }
+        $builder = $model->newQuery();
+        $table = $model->getTable();
+        $this->resolveSort($model, $order, $builder, $closure);
+        if ($filter && $search) {
+            $builder->where(function ($builder) use ($search, $filter, $table) {
+                foreach ((array)$search as $column) {
+                    /** @var Builder $builder */
+
+                    $key = $column;
+                    if (strpos($column, '.') === false) {
+                        $key = $table . '.' . $column;
+                    }
+
+                    $builder->orWhere($key, 'like binary', "%{$filter}%");
+                }
+            });
+        }
         return $builder;
     }
 }
