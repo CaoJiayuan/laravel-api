@@ -29,7 +29,7 @@ class Hub
             if (empty(static::$subscribes[$channel])) {
                 static::$subscribes[$channel] = [];
             }
-            $subId = self::formatSubscriber($subscriber);
+            $subId = self::insertSubscriber($subscriber);
 
             if (!in_array($subId, static::$subscribes[$channel])) {
                 array_push(static::$subscribes[$channel], $subId);
@@ -54,7 +54,7 @@ class Hub
         }
     }
 
-    public static function formatSubscriber($subscriber)
+    public static function insertSubscriber($subscriber)
     {
         $id = self::getSubscriberId($subscriber);
 
@@ -117,6 +117,13 @@ class Hub
                     }
                 }
             }
+        }
+    }
+
+    public static function broadcast($payload)
+    {
+        foreach (static::$subscribers as $resolver) {
+            $resolver($payload);
         }
     }
 
