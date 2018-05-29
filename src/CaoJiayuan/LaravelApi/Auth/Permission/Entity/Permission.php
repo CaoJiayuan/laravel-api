@@ -103,14 +103,16 @@ class Permission extends EntrustPermission
 
     }
 
-    public static function tree($roles)
+    public static function tree($roles, \Closure $nodeResolver = null, \Closure $treeResolver = null)
     {
         $prefix = \DB::getTablePrefix();
         $table = (new static())->getTable();
         $permissionRoleTable = Config::get('entrust.permission_role_table', 'permission_role');;
         $su = Config::get('entrust.administrator', 'administrator');;
         /** @var \Illuminate\Database\Eloquent\Builder $builder */
-        $builder = static::where('parent_id', 0)->with('node');
+        $builder = static::where('parent_id', 0)->with(['node' => function ($builder) use($nodeResolver) {
+            $nodeResolver && $nodeResolver($builder);
+        }]);
         $builder->select([
             $table . '.*',
         ]);
@@ -136,6 +138,7 @@ class Permission extends EntrustPermission
         $builder->addSelect($select);
 
         static::beforeTree($builder);
+        $treeResolver && $treeResolver($builder);
         return $builder->get();
     }
 
