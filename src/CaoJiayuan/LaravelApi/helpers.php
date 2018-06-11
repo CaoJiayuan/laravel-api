@@ -125,3 +125,13 @@ if (!function_exists('html_dump')) {
 }
 
 
+
+if (!function_exists('serial_number')) {
+    function serial_number($num, $length = 4, $prepend = '0')
+    {
+        return sprintf("%'{$prepend}{$length}d", $num);
+    }
+}
+
+
+
