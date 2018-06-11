@@ -7,5 +7,6 @@
  */
 
 return [
-  'modelNotFound' => '没有找到相关的:model数据'
+  'modelNotFound' => '没有找到相关的:model数据',
+  'captchaError'  => '验证码错误',
 ];

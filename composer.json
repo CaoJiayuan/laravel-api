@@ -37,8 +37,9 @@
         "guzzlehttp/guzzle": "Required to make http request.",
         "lidelin/laravel-aliyun-sts": "Required to use aliyun sts util.",
         "workerman/workerman": "Required to use server command.",
-        "maatwebsite/excel": "Required to use excel model functional.",
-        "zizaco/entrust": "Required to use rbac permission functional.",
-        "barryvdh/laravel-cors": "Required to set cross domain."
+        "maatwebsite/excel": "Required to use excel model feature.",
+        "zizaco/entrust": "Required to use rbac permission feature.",
+        "barryvdh/laravel-cors": "Required to set cross domain.",
+        "gregwar/captcha": "Required to use captcha feature."
     }
 }
