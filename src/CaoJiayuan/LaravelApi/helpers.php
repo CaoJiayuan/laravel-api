@@ -105,7 +105,7 @@ if (!function_exists('promise')) {
      * @param array $params
      * @return Promise
      */
-    function promise(callable $promising, $params = [])
+    function promise($promising, $params = [])
     {
         return Promise::resolve($promising, $params);
     }

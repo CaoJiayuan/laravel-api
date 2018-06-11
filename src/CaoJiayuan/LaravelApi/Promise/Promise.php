@@ -26,7 +26,7 @@ class Promise implements PromiseInterface, Jsonable
     protected $id;
 
 
-    public function __construct(callable $executor, $params = [])
+    public function __construct($executor, $params = [])
     {
         $this->id = $this->generateId();
         $this->executor = $this->useAsCallable($executor);
@@ -80,7 +80,7 @@ class Promise implements PromiseInterface, Jsonable
      * @param array $params
      * @return static
      */
-    public static function resolve(callable $executor, $params = [])
+    public static function resolve($executor, $params = [])
     {
         return new static($executor, $params);
     }
