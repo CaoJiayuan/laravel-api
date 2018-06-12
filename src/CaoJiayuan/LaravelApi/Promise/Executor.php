@@ -8,11 +8,13 @@
 namespace CaoJiayuan\LaravelApi\Promise;
 
 
-abstract class Executor
+use Illuminate\Contracts\Support\Jsonable;
+
+abstract class Executor implements Jsonable
 {
     protected $promise;
 
-    public function __construct($autoResolve = true)
+    public function __construct($resolveNow = false)
     {
         $this->promise = promise(function () {
             return $this->resolve();
@@ -22,10 +24,8 @@ abstract class Executor
         })->rejected(function ($ex) {
             $this->onRejected($ex);
         });
-        if ($autoResolve) {
+        if ($resolveNow) {
             $this->promise->resolveIfNotResolved();
-        } else {
-            $this->promise->fulfill();
         }
     }
 
@@ -39,5 +39,18 @@ abstract class Executor
     {
         $this->promise->pending();
         $this->promise->resolveIfNotResolved();
+    }
+
+    public function toJson($options = 0)
+    {
+        return $this->promise->toJson($options);
+    }
+
+    /**
+     * @return Promise
+     */
+    public function getPromise()
+    {
+        return $this->promise;
     }
 }

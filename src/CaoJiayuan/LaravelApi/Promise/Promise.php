@@ -75,6 +75,11 @@ class Promise implements PromiseInterface, Jsonable
         return $this;
     }
 
+    public function anyway(callable $anyway)
+    {
+
+    }
+
     /**
      * @param callable $executor
      * @param array $params
@@ -102,6 +107,7 @@ class Promise implements PromiseInterface, Jsonable
                     }
                 }
                 $result = call_user_func_array($this->executor, $pass);
+                $this->status = static::FULFILLED;
                 $pipe->send($result)
                     ->through($this->onFulfilled)
                     ->then(function ($result) {
@@ -116,7 +122,6 @@ class Promise implements PromiseInterface, Jsonable
             if ($echo) {
                 echo $echo;
             }
-            $this->status = static::FULFILLED;
         }
         return $this;
     }
@@ -161,5 +166,13 @@ class Promise implements PromiseInterface, Jsonable
             'id'     => $this->id,
             'status' => $this->status
         ], $options);
+    }
+
+    /**
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->id;
     }
 }
