@@ -27,9 +27,8 @@ class Merger
     protected $manager;
     protected $direction;
 
-    public function __construct($columns = 1, $direction = Merger::DIRECTION_VERTICAL)
+    public function __construct($direction = Merger::DIRECTION_VERTICAL)
     {
-        $this->columns = $columns;
         $this->manager = new ImageManager();
         $this->direction = $direction;
     }
@@ -38,6 +37,8 @@ class Merger
     {
         if ($this->direction == static::DIRECTION_VERTICAL) {
             return $this->mergeVertical($images, $mode);
+        } else {
+            return $this->mergeHorizon($images, $mode);
         }
     }
 
@@ -53,7 +54,7 @@ class Merger
 
         $widths = array_map(function ($img) {
             /** @var Image $img */
-            return $img->getHeight();
+            return $img->getWidth();
         }, $images);
 
         $width = $mode == Merger::MODE_MIN ? min($widths) : max($widths);
@@ -71,6 +72,41 @@ class Merger
             $image->zoomByWidth($width);
             $canvas->insert($image->getImage(), 'top-left', 0, $top);
             $top += $image->getHeight();
+        }
+
+        return $canvas;
+    }
+
+    /**
+     * @param Image[] $images
+     * @param int $mode
+     * @return \Intervention\Image\Image
+     */
+    public function mergeHorizon($images, $mode = Merger::MODE_MIN)
+    {
+        /** @var Image[] $images */
+        $images = $this->formatImages($images);
+
+        $heights = array_map(function ($img) {
+            /** @var Image $img */
+            return $img->getHeight();
+        }, $images);
+
+        $height = $mode == Merger::MODE_MIN ? min($heights) : max($heights);
+
+        $width = 0;
+
+        foreach($images as $image) {
+            $width += $image->getWidth() * ($height / $image->getHeight());
+        }
+
+        $canvas = $this->manager->canvas($width, $height);
+
+        $left = 0;
+        foreach($images as $k => $image) {
+            $image->zoomByHeight($height);
+            $canvas->insert($image->getImage(), 'top-left', $left, 0);
+            $left += $image->getWidth();
         }
 
         return $canvas;
