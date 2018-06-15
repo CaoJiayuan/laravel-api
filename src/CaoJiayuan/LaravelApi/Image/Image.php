@@ -72,4 +72,20 @@ class Image
     {
         return [$this->getWidth(), $this->getHeight()];
     }
+
+    /**
+     * @return mixed
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * @return \Intervention\Image\Image
+     */
+    public function getImage()
+    {
+        return $this->image;
+    }
 }

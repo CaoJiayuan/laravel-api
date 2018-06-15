@@ -37,13 +37,14 @@ class Merger
     public function merge($images, $mode = Merger::MODE_MIN)
     {
         if ($this->direction == static::DIRECTION_VERTICAL) {
-
+            return $this->mergeVertical($images, $mode);
         }
     }
 
     /**
      * @param Image[] $images
      * @param int $mode
+     * @return \Intervention\Image\Image
      */
     public function mergeVertical($images, $mode = Merger::MODE_MIN)
     {
@@ -65,7 +66,14 @@ class Merger
 
         $canvas = $this->manager->canvas($width, $height);
 
+        $top = 0;
+        foreach($images as $k => $image) {
+            $image->zoomByWidth($width);
+            $canvas->insert($image->getImage(), 'top-left', 0, $top);
+            $top += $image->getHeight();
+        }
 
+        return $canvas;
     }
 
     protected function formatImages($images)
