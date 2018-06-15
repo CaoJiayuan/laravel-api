@@ -40,6 +40,7 @@
         "maatwebsite/excel": "Required to use excel model feature.",
         "zizaco/entrust": "Required to use rbac permission feature.",
         "barryvdh/laravel-cors": "Required to set cross domain.",
+        "intervention/image": "Required to use image feature.",
         "gregwar/captcha": "Required to use captcha feature."
     }
 }
