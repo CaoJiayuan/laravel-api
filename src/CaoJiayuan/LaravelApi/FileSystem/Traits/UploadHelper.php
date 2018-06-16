@@ -28,11 +28,13 @@ trait UploadHelper
         }
         $file = $request->file($fileKey);
         $filename = $file->hashName();
-        $p = $file->storePubliclyAs($path, $this->uploadFilePrefix . $filename);
+        $p = $file->storePubliclyAs($path, $this->uploadFilePrefix . $filename, [
+            'disk' => $this->getUploadDisk()
+        ]);
 
         $this->uploadedFile = $path . DIRECTORY_SEPARATOR . $this->uploadFilePrefix . $filename;
         return [
-            'url'      => Storage::url($p),
+            'url'      => Storage::disk($this->getUploadDisk())->url($p),
             'type'     => $file->getClientMimeType(),
             'filename' => $file->getClientOriginalName()
         ];
@@ -61,7 +63,7 @@ trait UploadHelper
 
         $storeFileName = $this->uploadFilePrefix . md5($fileId)  . $ext;
         $storagePath = rtrim($path, '/') . DIRECTORY_SEPARATOR . $storeFileName;
-        if (Storage::exists($storagePath)) { // Using existing file
+        if (Storage::disk($this->getUploadDisk())->exists($storagePath)) { // Using existing file
             $p = $storagePath;
         } else {
             $resultFile = $dir . DIRECTORY_SEPARATOR . $filename;
@@ -79,14 +81,16 @@ trait UploadHelper
                 fclose($fp);
                 $uploadFile = new UploadedFile($resultFile, $filename);
 
-                $p = $uploadFile->storePubliclyAs($path, $storeFileName);
+                $p = $uploadFile->storePubliclyAs($path, $storeFileName, [
+                    'disk' => $this->getUploadDisk()
+                ]);
                 $this->rmDir($dir);
             }
         }
         $this->uploadedFile = $path . DIRECTORY_SEPARATOR . $storeFileName;
 
         return [
-            'url'      => Storage::url($p),
+            'url'      => Storage::disk($this->getUploadDisk())->url($p),
             'type'     => $mimetype ? $mimetype : $file->getClientMimeType(),
             'filename' => $filename
         ];
@@ -133,5 +137,10 @@ trait UploadHelper
         $mimetype = $request->get('mime_type'); // Mimetype
 
         return [$fileId, $filename, $chunks, $index, $mimetype];
+    }
+
+    protected function getUploadDisk()
+    {
+        return null;
     }
 }

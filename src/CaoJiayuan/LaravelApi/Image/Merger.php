@@ -13,8 +13,8 @@ use Intervention\Image\ImageManager;
 
 class Merger
 {
-    const MODE_MIN = 0;
-    const MODE_MAX = 1;
+    const MODE_MIN = 'min';
+    const MODE_MAX = 'max';
 
     const DIRECTION_VERTICAL = 0;
     const DIRECTION_HORIZON = 1;
@@ -33,6 +33,11 @@ class Merger
         $this->direction = $direction;
     }
 
+    /**
+     * @param $images
+     * @param string|int $mode
+     * @return \Intervention\Image\Image
+     */
     public function merge($images, $mode = Merger::MODE_MIN)
     {
         if ($this->direction == static::DIRECTION_VERTICAL) {
@@ -44,7 +49,7 @@ class Merger
 
     /**
      * @param Image[] $images
-     * @param int $mode
+     * @param int|string $mode
      * @return \Intervention\Image\Image
      */
     public function mergeVertical($images, $mode = Merger::MODE_MIN)
@@ -57,7 +62,11 @@ class Merger
             return $img->getWidth();
         }, $images);
 
-        $width = $mode == Merger::MODE_MIN ? min($widths) : max($widths);
+        if (is_numeric($mode)) {
+            $width = $mode;
+        } else {
+            $width = $mode == Merger::MODE_MIN ? min($widths) : max($widths);
+        }
 
         $height = 0;
 
@@ -79,7 +88,7 @@ class Merger
 
     /**
      * @param Image[] $images
-     * @param int $mode
+     * @param int|string $mode
      * @return \Intervention\Image\Image
      */
     public function mergeHorizon($images, $mode = Merger::MODE_MIN)
@@ -92,8 +101,11 @@ class Merger
             return $img->getHeight();
         }, $images);
 
-        $height = $mode == Merger::MODE_MIN ? min($heights) : max($heights);
-
+        if (is_numeric($mode)) {
+            $height = $mode;
+        } else {
+            $height = $mode == Merger::MODE_MIN ? min($heights) : max($heights);
+        }
         $width = 0;
 
         foreach($images as $image) {
