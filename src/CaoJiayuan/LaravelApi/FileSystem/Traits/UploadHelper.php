@@ -35,6 +35,7 @@ trait UploadHelper
         $this->uploadedFile = $path . DIRECTORY_SEPARATOR . $this->uploadFilePrefix . $filename;
         return [
             'url'      => Storage::disk($this->getUploadDisk())->url($p),
+            'path'     => $p,
             'type'     => $file->getClientMimeType(),
             'filename' => $file->getClientOriginalName()
         ];
@@ -61,7 +62,7 @@ trait UploadHelper
         }
         $ext = substr($filename, strrpos($filename, '.'));
 
-        $storeFileName = $this->uploadFilePrefix . md5($fileId)  . $ext;
+        $storeFileName = $this->uploadFilePrefix . md5($fileId) . $ext;
         $storagePath = rtrim($path, '/') . DIRECTORY_SEPARATOR . $storeFileName;
         if (Storage::disk($this->getUploadDisk())->exists($storagePath)) { // Using existing file
             $p = $storagePath;
@@ -91,9 +92,25 @@ trait UploadHelper
 
         return [
             'url'      => Storage::disk($this->getUploadDisk())->url($p),
+            'path'     => $p,
             'type'     => $mimetype ? $mimetype : $file->getClientMimeType(),
             'filename' => $filename
         ];
+    }
+
+    /**
+     * @param Request $request
+     * @return array
+     */
+    public function getChunkUploadFileInfo(Request $request, $fileKey)
+    {
+        $fileId = $request->get('file_id'); // 文件id
+        $filename = $request->get('filename'); // 文件名
+        $chunks = $request->get('chunks'); // 分块数量
+        $index = $request->get('chunk_index'); // 当前分块
+        $mimetype = $request->get('mime_type'); // Mimetype
+
+        return [$fileId, $filename, $chunks, $index, $mimetype];
     }
 
     protected function getChunkTempPath($path)
@@ -104,6 +121,11 @@ trait UploadHelper
     protected function getChunkTempDir()
     {
         return storage_path('app/public/chunks');
+    }
+
+    protected function getUploadDisk()
+    {
+        return null;
     }
 
     public function rmDir($dir)
@@ -122,25 +144,5 @@ trait UploadHelper
         $pos = strrpos($filename, '.');
 
         return $pos ? substr($filename, $pos + 1) : false;
-    }
-
-    /**
-     * @param Request $request
-     * @return array
-     */
-    public function getChunkUploadFileInfo(Request $request, $fileKey)
-    {
-        $fileId = $request->get('file_id'); // 文件id
-        $filename = $request->get('filename'); // 文件名
-        $chunks = $request->get('chunks'); // 分块数量
-        $index = $request->get('chunk_index'); // 当前分块
-        $mimetype = $request->get('mime_type'); // Mimetype
-
-        return [$fileId, $filename, $chunks, $index, $mimetype];
-    }
-
-    protected function getUploadDisk()
-    {
-        return null;
     }
 }
