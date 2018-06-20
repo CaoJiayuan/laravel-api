@@ -9,12 +9,14 @@
 namespace CaoJiayuan\LaravelApi\Image;
 
 use Closure;
+use Intervention\Image\Image as InterventionImage;
 use Intervention\Image\ImageManager as Intervention;
+use Intervention\Image\ImageManagerStatic as InterventionStatic;
 
 /**
  * Class Image
  * @package CaoJiayuan\LaravelApi\Image
- * @mixin \Intervention\Image\Image
+ * @mixin InterventionImage
  */
 class Image
 {
@@ -25,7 +27,7 @@ class Image
      */
     protected $manager;
     /**
-     * @var \Intervention\Image\Image
+     * @var InterventionImage
      */
     protected $image;
 
@@ -38,12 +40,22 @@ class Image
 
     public function __call($name, $arguments)
     {
-        return call_user_func_array([$this->image, $name], $arguments);
+        $result = call_user_func_array([$this->image, $name], $arguments);
+
+        if ($result instanceof InterventionImage) {
+            return $this;
+        }
+        return $result;
     }
 
     public static function make($path)
     {
         return new static($path);
+    }
+
+    public static function canvas($width, $height, $background = null)
+    {
+        return InterventionStatic::canvas($width, $height, $background);
     }
 
     public function zoom($rate, Closure $cb = null)
@@ -82,10 +94,31 @@ class Image
     }
 
     /**
-     * @return \Intervention\Image\Image
+     * @return InterventionImage
      */
     public function getImage()
     {
         return $this->image;
+    }
+
+    public function dominantColor()
+    {
+        $rTotal = $bTotal = $gTotal = $aTotal = $total = 0;
+        for ($x = 0; $x < $this->getWidth(); $x++) {
+            for ($y = 0; $y < $this->getHeight(); $y++) {
+                list($r, $g, $b, $a) = $this->pickColor($x, $y);
+                $rTotal += $r;
+                $gTotal += $g;
+                $bTotal += $b;
+                $aTotal += $a;
+                $total++;
+            }
+        }
+        $rAverage = round($rTotal / $total);
+        $gAverage = round($gTotal / $total);
+        $bAverage = round($bTotal / $total);
+        $aAverage = round($aTotal / $total);
+
+        return [$rAverage, $gAverage, $bAverage, $aAverage];
     }
 }
