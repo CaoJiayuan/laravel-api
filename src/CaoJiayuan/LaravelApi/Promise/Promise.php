@@ -168,6 +168,11 @@ class Promise implements PromiseInterface, Jsonable
         ], $options);
     }
 
+    public function __toString()
+    {
+        return $this->toJson();
+    }
+
     /**
      * @return string
      */
