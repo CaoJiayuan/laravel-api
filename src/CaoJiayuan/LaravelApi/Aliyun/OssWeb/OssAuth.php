@@ -12,16 +12,15 @@ use DateTime;
 class OssAuth
 {
 
-    public static function policy($id, $key, $bucket, $endPoint)
+    public static function policy($id, $key, $bucket, $endPoint, $expire = 600, $dir = null)
     {
         $host = "https://$bucket.$endPoint";
 
         $now = time();
-        $expire = 600;
         $end = $now + $expire;
         $expiration = static::gmtIso8601($end);
 
-        $dir = 'upload/' . date('Y-m-d') . '/';
+        $dir || $dir = 'upload/' . date('Y-m-d') . '/';
 
         $condition = [0 => 'content-length-range', 1 => 0, 2 => 1048576000];
         $conditions[] = $condition;
