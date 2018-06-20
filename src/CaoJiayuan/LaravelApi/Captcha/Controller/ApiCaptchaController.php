@@ -1,9 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: cjy
- * Date: 2018/6/11
- * Time: 下午3:03
+ * Sessionless image captcha
  */
 
 namespace CaoJiayuan\LaravelApi\Captcha\Controller;
@@ -21,21 +18,16 @@ class ApiCaptchaController
     {
         $token = $request->get('token');
         try{
-           $value =  app('encrypter')->decrypt($token);
+            $captcha = ApiCaptcha::make($token);
         } catch (\Exception $exception) {
             throw new NotFoundHttpException();
         }
-        $captcha = new ApiCaptcha(new CaptchaBuilder($value));
 
         return $captcha->render();
     }
 
     public function token()
     {
-        $value = str_random(6);
-
-        return response()->json([
-            'token' => app('encrypter')->encrypt($value)
-        ]);
+        return response()->json(ApiCaptcha::meta(6));
     }
 }
