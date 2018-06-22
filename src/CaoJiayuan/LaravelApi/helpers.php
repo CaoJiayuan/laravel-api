@@ -1,5 +1,6 @@
 <?php
 
+use CaoJiayuan\LaravelApi\Html\Document;
 use CaoJiayuan\LaravelApi\Promise\Promise;
 use Illuminate\Support\Debug\HtmlDumper;
 use Symfony\Component\VarDumper\Cloner\VarCloner;
@@ -135,3 +136,15 @@ if (!function_exists('serial_number')) {
 
 
 
+if (!function_exists('document')) {
+    /**
+     * @param null $doc
+     * @param bool $isFile
+     * @param string $encoding
+     * @param string $type
+     * @return Document|\DiDom\Document
+     */
+    function document($doc = null, $isFile = false, $encoding = 'UTF-8', $type = Document::TYPE_HTML) {
+        return new Document($doc, $isFile, $encoding, $type);
+    }
+}

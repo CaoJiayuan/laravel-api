@@ -41,6 +41,7 @@
         "zizaco/entrust": "Required to use rbac permission feature.",
         "barryvdh/laravel-cors": "Required to set cross domain.",
         "intervention/image": "Required to use image feature.",
+        "imangazaliev/didom": "Required to use html dom feature.",
         "gregwar/captcha": "Required to use captcha feature."
     }
 }
