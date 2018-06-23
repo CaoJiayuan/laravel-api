@@ -34,6 +34,7 @@ class GuzzleLoader implements Loader
     public function onLoad($options = [])
     {
         $this->loadOptions = $options;
+        return $this;
     }
 
     /**
