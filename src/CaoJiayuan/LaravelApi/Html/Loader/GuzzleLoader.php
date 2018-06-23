@@ -15,6 +15,7 @@ class GuzzleLoader implements Loader
 {
     protected $guzzle = null;
     protected $options = [];
+    protected $loadOptions = [];
     protected $url;
 
     public function __construct($url, $options = [])
@@ -28,6 +29,11 @@ class GuzzleLoader implements Loader
         $this->options = $options;
 
         return $this;
+    }
+
+    public function onLoad($options = [])
+    {
+        $this->loadOptions = $options;
     }
 
     /**
@@ -44,6 +50,14 @@ class GuzzleLoader implements Loader
 
     public function load()
     {
-        return $this->getGuzzle()->get($this->url)->getBody()->__toString();
+        return $this->getGuzzle()->get($this->url, $this->loadOptions)->getBody()->__toString();
+    }
+
+    /**
+     * @return array
+     */
+    public function getLoadOptions()
+    {
+        return $this->loadOptions;
     }
 }
