@@ -173,7 +173,7 @@ namespace {
      *
      * @param mixed $id
      * @param array $columns
-     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection|static
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      * @static
      */
@@ -187,7 +187,7 @@ namespace {
      *
      * @param mixed $id
      * @param array $columns
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return \Illuminate\Database\Eloquent\Model|static
      * @static
      */
     public static function findOrNew($id, $columns = array())
@@ -200,7 +200,7 @@ namespace {
      *
      * @param array $attributes
      * @param array $values
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return \Illuminate\Database\Eloquent\Model|static
      * @static
      */
     public static function firstOrNew($attributes, $values = array())
@@ -213,7 +213,7 @@ namespace {
      *
      * @param array $attributes
      * @param array $values
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return \Illuminate\Database\Eloquent\Model|static
      * @static
      */
     public static function firstOrCreate($attributes, $values = array())
@@ -226,7 +226,7 @@ namespace {
      *
      * @param array $attributes
      * @param array $values
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return \Illuminate\Database\Eloquent\Model|static
      * @static
      */
     public static function updateOrCreate($attributes, $values = array())
