@@ -1,6 +1,7 @@
 <?php
 
 use CaoJiayuan\LaravelApi\Html\Document;
+use CaoJiayuan\LaravelApi\Html\Documents;
 use CaoJiayuan\LaravelApi\Promise\Promise;
 use Illuminate\Support\Debug\HtmlDumper;
 use Symfony\Component\VarDumper\Cloner\VarCloner;
@@ -146,5 +147,17 @@ if (!function_exists('document')) {
      */
     function document($doc = null, $isFile = false, $encoding = 'UTF-8', $type = Document::TYPE_HTML) {
         return new Document($doc, $isFile, $encoding, $type);
+    }
+}
+
+if (!function_exists('documents')) {
+    /**
+     * @param $loads
+     * @param array $configs
+     * @param array $options
+     * @return Documents|Document[]
+     */
+    function documents($loads, $configs = [], $options = []) {
+        return (new Documents($loads))->config($configs)->onLoad($options);
     }
 }

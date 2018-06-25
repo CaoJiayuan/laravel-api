@@ -10,6 +10,9 @@ namespace CaoJiayuan\LaravelApi\Html\Loader;
 
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Pool;
+use GuzzleHttp\Psr7\Request;
+use Illuminate\Cache\CacheManager;
 
 class GuzzleLoader implements Loader
 {
@@ -17,16 +20,54 @@ class GuzzleLoader implements Loader
     protected $options = [];
     protected $loadOptions = [];
     protected $url;
+    protected $method;
+    protected $cacheExpire = 0;
+    protected $cacheDriver = null;
 
-    public function __construct($url, $options = [])
+    protected $cachePrefix = 'guzzle_loader:';
+
+    public function __construct($url, $options = [], $method = 'GET')
     {
         $this->url = $url;
         $this->options = $options;
+        $this->method = $method;
+    }
+
+    public function cache($expireMinutes = 0)
+    {
+        $this->cacheExpire = $expireMinutes;
+
+        return $this;
     }
 
     public function config($options)
     {
         $this->options = $options;
+
+        return $this;
+    }
+
+    public function header($key, $value = null)
+    {
+        if (!isset($this->options['headers'])) {
+            $this->options['headers'] = [];
+        }
+        $headers = [];
+        if (is_array($key)) {
+            $headers = $key;
+        } elseif (is_string($key) && !is_null($value)) {
+            $headers = [
+              $key => $value
+            ];
+        }
+        foreach($headers as $k => $v) {
+            $this->options['headers'][$k] = $v;
+        }
+    }
+
+    public function userAgent($ua)
+    {
+        $this->header('User-Agent', $ua);
 
         return $this;
     }
@@ -51,7 +92,73 @@ class GuzzleLoader implements Loader
 
     public function load()
     {
-        return $this->getGuzzle()->get($this->url, $this->loadOptions)->getBody()->__toString();
+        if ($this->cacheExpire != 0) {
+            $key =  $this->getCacheKey($this->url);
+            $driver = $this->getCacheDriver();
+
+            return $driver->remember($key, $this->cacheExpire ,function () {
+                return $this->request()->__toString();
+            });
+        }
+
+        return $this->request();
+    }
+
+    /**
+     * @return CacheManager
+     */
+    protected function getCacheDriver()
+    {
+        return app('cache')->driver($this->cacheDriver);
+    }
+
+    public function loadAll(\Closure $fulfilled, \Closure $rejected = null, $concurrency = 5)
+    {
+        $results = [];
+        $urls = array_wrap($this->url);
+
+        $uncached = [];
+        if ($this->cacheExpire != 0) {
+            foreach($urls as $key => $url) {
+                if ($cached = $this->getCacheDriver()->getStore()->get($this->getCacheKey($url))) {
+                    array_push($results, $fulfilled($cached, $url));
+                } else {
+                    $uncached[] = $url;
+                }
+            }
+        } else {
+            $uncached = $urls;
+        }
+
+
+        $client = $this->getGuzzle();
+
+        $requests = function () use ($uncached) {
+            foreach($uncached as $url) {
+                yield new Request($this->method, $url, $this->loadOptions);
+            }
+        };
+
+        $pool = new Pool($client, $requests(), [
+            'concurrency' => $concurrency,
+            'fulfilled' => function ($response, $index) use ($fulfilled, &$results, $uncached) {
+                /** @var \Psr\Http\Message\ResponseInterface $response */
+                $url = $uncached[$index];
+                $body = $response->getBody()->__toString();
+                array_push($results, $fulfilled($body, $url));
+
+                if ($this->cacheExpire != 0) {
+                    $this->getCacheDriver()->put($this->getCacheKey($url), $body, $this->cacheExpire);
+                }
+            },
+            'rejected' => $rejected ?: function ($reason, $index) {
+
+            },
+        ]);
+
+        $pool->promise()->wait();
+
+        return $results;
     }
 
     /**
@@ -61,4 +168,50 @@ class GuzzleLoader implements Loader
     {
         return $this->loadOptions;
     }
+
+    /**
+     * @param string $cachePrefix
+     * @return $this
+     */
+    public function setCachePrefix(string $cachePrefix)
+    {
+        $this->cachePrefix = $cachePrefix;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCachePrefix(): string
+    {
+        return $this->cachePrefix;
+    }
+
+    /**
+     * @param string $cacheDriver
+     * @return $this
+     */
+    public function setCacheDriver($cacheDriver)
+    {
+        $this->cacheDriver = $cacheDriver;
+        return $this;
+    }
+
+    /**
+     * @return \Psr\Http\Message\StreamInterface
+     */
+    protected function request()
+    {
+        return $this->getGuzzle()->request($this->method, $this->url, $this->loadOptions)->getBody();
+    }
+
+    /**
+     * @param $url
+     * @return string
+     */
+    protected function getCacheKey($url): string
+    {
+        return $this->cachePrefix . md5($url);
+    }
+
 }

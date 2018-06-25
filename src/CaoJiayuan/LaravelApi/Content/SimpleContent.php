@@ -8,19 +8,18 @@
 
 namespace CaoJiayuan\LaravelApi\Content;
 
+use Illuminate\Http\Response;
+use JsonSerializable;
 
-class SimpleContent implements \JsonSerializable
+class SimpleContent extends Response implements JsonSerializable
 {
 
     protected $content;
 
-    /**
-     * SimpleContent constructor.
-     * @param string $content
-     */
     public function __construct($content)
     {
-        $this->content = $content;
+        parent::__construct($content);
+        $this->header('Content-Type', $this->getType());
     }
 
     /**
@@ -36,9 +35,14 @@ class SimpleContent implements \JsonSerializable
         return $this->content;
     }
 
-    public function toString()
+    public function toString(): string
     {
         return $this->content;
+    }
+
+    public function getType(): string
+    {
+        return 'text/plain';
     }
 
     /**
@@ -50,6 +54,6 @@ class SimpleContent implements \JsonSerializable
      */
     public function jsonSerialize()
     {
-        return $this->content;
+        return $this->toString();
     }
 }

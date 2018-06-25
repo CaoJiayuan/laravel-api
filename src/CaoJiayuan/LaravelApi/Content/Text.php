@@ -17,4 +17,22 @@ class Text extends SimpleContent
 
         return $this;
     }
+
+    public function replace($find, $replace, $regex = false)
+    {
+        if ($regex) {
+            $this->content = preg_replace($find, $replace, $this->content);
+        } else {
+            $this->content = str_replace($find, $replace, $this->content);
+        }
+
+        return $this;
+    }
+
+    public function sub($start, $length = null)
+    {
+        $this->content = substr($this->content, $start, $length);
+
+        return $this;
+    }
 }

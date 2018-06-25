@@ -40,7 +40,7 @@ class Document extends BaseDocument
     {
         $result = parent::find($expression, $type, $wrapNode, $contextNode);
 
-        return collect($result);
+        return new NodeList($result);
     }
 
     public function load($string, $isFile = false, $type = BaseDocument::TYPE_HTML, $options = null)
@@ -48,6 +48,11 @@ class Document extends BaseDocument
         if ($string instanceof Loader\Loader) {
             $string = $string->load();
         }
+
+        if (is_object($string) && method_exists($string, '__toString')) {
+            $string = $string->__toString();
+        }
+
 
         return parent::load($string, $isFile, $type, $options);
     }
