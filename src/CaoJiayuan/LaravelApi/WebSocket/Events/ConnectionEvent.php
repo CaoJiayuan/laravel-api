@@ -9,6 +9,7 @@
 namespace CaoJiayuan\LaravelApi\WebSocket\Events;
 
 use BadMethodCallException;
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Queue\SerializesModels;
 use Workerman\Connection\TcpConnection;
