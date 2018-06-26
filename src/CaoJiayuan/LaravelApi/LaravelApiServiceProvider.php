@@ -48,14 +48,21 @@ class LaravelApiServiceProvider extends ServiceProvider
     {
         $this->mergeConfig();
         if (config('app.env') == 'local') {
-            $this->app->register(IdeHelperServiceProvider::class);
-            $this->app->register(SqlLoggerServiceProvider::class);
+            $this->registerIfExists(IdeHelperServiceProvider::class);
+            $this->registerIfExists(SqlLoggerServiceProvider::class);
         }
 
         $this->app->register(LaravelServiceProvider::class);
         $this->setLogWriter();
-        if (PHP_SAPI == 'cli') {
+        if ($this->app->runningInConsole()) {
             $this->registerCommands();
+        }
+    }
+
+    protected function registerIfExists($provider)
+    {
+        if (class_exists($provider)) {
+            $this->app->register($provider);
         }
     }
 
@@ -65,7 +72,7 @@ class LaravelApiServiceProvider extends ServiceProvider
             return;
         }
 
-        if (PHP_SAPI == 'cli') {
+        if ($this->app->runningInConsole()) {
             if ($this->app->version() >= 5.6) {
                 /** @var \Illuminate\Config\Repository $config */
                 $config = $this->app['config'];

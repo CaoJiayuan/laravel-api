@@ -2,16 +2,13 @@
 namespace CaoJiayuan\LaravelApi;
 
 use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
-use CaoJiayuan\LaravelApi\Http\Server\LumenServerCommand;
-use Illuminate\Support\ServiceProvider;
 use Mnabialek\LaravelSqlLogger\Providers\ServiceProvider as SqlLogServiceProvider;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Tymon\JWTAuth\Providers\LumenServiceProvider;
-use CaoJiayuan\LaravelApi\WebSocket\ServerCommand as WsServerCommand;
 
-class LumenApiServiceProvider extends ServiceProvider
+class LumenApiServiceProvider extends LaravelApiServiceProvider
 {
     protected $configs = ['laravel-api'];
 
@@ -56,27 +53,5 @@ class LumenApiServiceProvider extends ServiceProvider
         foreach ($this->configs as $key) {
             $this->mergeConfigFrom(__DIR__.'/../../config/'. $key. '.php', $key);
         }
-    }
-
-    protected function registerCommands()
-    {
-        $this->registerServerCommend();
-        $this->registerWsCommend();
-        $this->commands(['command.laravel-api.server']);
-        $this->commands(['command.laravel-api.ws']);
-    }
-
-    protected function registerServerCommend()
-    {
-        $this->app->singleton('command.laravel-api.server', function ($app) {
-            return new LumenServerCommand();
-        });
-    }
-
-    protected function registerWsCommend()
-    {
-        $this->app->singleton('command.laravel-api.ws', function ($app) {
-            return new WsServerCommand();
-        });
     }
 }
