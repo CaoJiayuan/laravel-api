@@ -9,6 +9,7 @@
 namespace CaoJiayuan\LaravelApi\Html;
 
 
+use CaoJiayuan\LaravelApi\Content\Html;
 use CaoJiayuan\LaravelApi\Content\Text;
 use DiDom\Element as BaseElement;
 use DiDom\Query;
@@ -29,13 +30,13 @@ class Element extends BaseElement implements JsonSerializable
     }
 
     /**
-     * @return Text
+     * @return Html
      */
     public function html()
     {
         $string = parent::html();
 
-        return new Text($string);
+        return new Html($string);
     }
 
     /**
@@ -46,7 +47,7 @@ class Element extends BaseElement implements JsonSerializable
     {
         $string = parent::innerHtml($delimiter);
 
-        return new Text($string);
+        return new Html($string);
     }
 
     /**
@@ -60,6 +61,14 @@ class Element extends BaseElement implements JsonSerializable
         $document->appendChild($this->node);
 
         return $document;
+    }
+
+    public function setInnerHtml($html)
+    {
+        if (is_object($html) && method_exists($html, '__toString')) {
+            $html = $html->__toString();
+        }
+        return parent::setInnerHtml($html);
     }
 
     /**
