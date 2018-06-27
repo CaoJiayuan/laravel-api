@@ -18,7 +18,7 @@ use Sts\Core\Regions\EndpointProvider;
 class StsAuth
 {
 
-    public static function auth($roleName, $regionId = "cn-hangzhou", $maxRetryNumber = 3)
+    public static function auth($roleName, $regionId = "cn-hangzhou", $maxRetries = 3)
     {
         $re = new AssumeRoleRequest();
         $accessKeyID = config('aliyun_sts.key');
@@ -33,13 +33,13 @@ class StsAuth
         $re->setPolicy(json_encode($policy));
         $re->setDurationSeconds($tokenExpire);
         $response = $cli->doAction($re, null, null, false);
-        $retryTimes = 0;
+        $retries = 0;
         $domain = EndpointProvider::findProductDomain($re->getRegionId(), $re->getProduct());
 
-        while (500 <= $response->getStatus() && $retryTimes < $maxRetryNumber) {
+        while (500 <= $response->getStatus() && $retries < $maxRetries) {
             $requestUrl = $re->composeUrl(null, null, $domain);
             $response = HttpHelper::curl($requestUrl, null, $re->getHeaders());
-            $retryTimes ++;
+            $retries++;
         }
 
         $result = json_decode($response->getBody(), true);
