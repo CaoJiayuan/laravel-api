@@ -5,8 +5,7 @@ RUN apk add --update --no-cache nginx gettext
 RUN apk add --no-cache --virtual .dev git\
     && cd /var/www \
     php composer.phar config -g repo.packagist composer https://packagist.phpcomposer.com \
-    && php composer.phar install --no-progress \
-    && php composer.phar dumpautoload -o \
+    && php composer.phar install --no-dev --no-progress \
     && rm composer.phar \
     && rm -rf /root/.composer/cache/* \
     && rm -fr /tmp/src  \
