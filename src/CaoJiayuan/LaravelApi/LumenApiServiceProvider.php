@@ -19,8 +19,8 @@ class LumenApiServiceProvider extends LaravelApiServiceProvider
         $this->mergeConfig();
         $app = $this->app;
         if (is_local()) {
-            $app->register(IdeHelperServiceProvider::class);
-            $app->register(SqlLogServiceProvider::class);
+            $this->registerIfExists(IdeHelperServiceProvider::class);
+            $this->registerIfExists(SqlLogServiceProvider::class);
         }
         $app->register(LumenServiceProvider::class);
         $this->setLogWriter();
