@@ -9,6 +9,7 @@
 namespace CaoJiayuan\LaravelApi\Html;
 
 
+use CaoJiayuan\LaravelApi\Html\Loader\ContentLoader;
 use CaoJiayuan\LaravelApi\Html\Loader\GuzzleLoader;
 use Illuminate\Support\Collection;
 
@@ -20,11 +21,11 @@ class Documents extends Collection
     protected $loaded = false;
     protected $concurrency = 5;
 
-    public function __construct($items = [], $fromString = false)
+    public function __construct($items = [], $fromString = true)
     {
         $this->fromString = $fromString;
         $this->items = $this->getArrayableItems($items);
-        $this->loader = new GuzzleLoader($this->items);
+        $fromString || $this->loader = new GuzzleLoader($items);
     }
 
     public function concurrency($concurrency)
@@ -86,5 +87,13 @@ class Documents extends Collection
     public static function loadStrings(array $strings)
     {
         return new static($strings, true);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isLoaded(): bool
+    {
+        return $this->loaded;
     }
 }

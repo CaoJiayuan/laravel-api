@@ -153,14 +153,12 @@ if (!function_exists('document')) {
 if (!function_exists('documents')) {
     /**
      * @param $loads
-     * @param array $configs
-     * @param array $options
-     * @return Documents|Document[]|LazyLoadDocuments
+     * @param bool $string
+     * @return Document[]|Documents|LazyLoadDocuments
      */
-    function documents($loads, $configs = [], $options = [])
+    function documents($loads, $string = false)
     {
-        $docs = new LazyLoadDocuments($loads);
-        $docs->config($configs)->onLoad($options);
+        $docs = new LazyLoadDocuments($loads, $string);
 
         return $docs;
     }

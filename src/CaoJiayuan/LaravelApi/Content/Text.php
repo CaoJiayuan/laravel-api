@@ -35,4 +35,27 @@ class Text extends SimpleContent
 
         return $this;
     }
+
+    public function match($regex, $all = false)
+    {
+        $match = [];
+
+        if ($all) {
+            preg_match_all($regex, $this->content, $match);
+        } else {
+            preg_match($regex, $this->content, $match);
+        }
+
+        return $match;
+    }
+
+    public function indexOf($needle)
+    {
+        return strpos($needle, $this->content);
+    }
+
+    public function contains($needles)
+    {
+        return str_contains($this->content, $needles);
+    }
 }

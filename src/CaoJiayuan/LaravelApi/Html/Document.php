@@ -80,5 +80,8 @@ class Document extends BaseDocument
         return parent::first($expression, $type, $wrapNode, $contextNode);
     }
 
-
+    public function getImages($expression = 'img')
+    {
+        return $this->find($expression);
+    }
 }
