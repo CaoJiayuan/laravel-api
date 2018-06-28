@@ -17,12 +17,20 @@ class Documents extends Collection
 
     protected $fromString;
     protected $loader;
+    protected $loaded = false;
+    protected $concurrency = 5;
 
     public function __construct($items = [], $fromString = false)
     {
         $this->fromString = $fromString;
-        $this->items = $items;
+        $this->items = $this->getArrayableItems($items);
         $this->loader = new GuzzleLoader($this->items);
+    }
+
+    public function concurrency($concurrency)
+    {
+        $this->concurrency = $concurrency;
+        return $this;
     }
 
     public function config($options)
@@ -49,7 +57,7 @@ class Documents extends Collection
         return $this;
     }
 
-    public function load(\Closure $onLoad = null, $concurrency = 5)
+    public function load(\Closure $onLoad = null)
     {
         if ($this->fromString) {
             $this->items = array_map(function ($item) use ($onLoad) {
@@ -62,8 +70,10 @@ class Documents extends Collection
                 $doc = new Document($body);
                 $onLoad && $onLoad($doc, $url);
                 return $doc;
-            }, null, $concurrency);
+            }, null, $this->concurrency);
         }
+
+        $this->loaded = true;
 
         return $this;
     }

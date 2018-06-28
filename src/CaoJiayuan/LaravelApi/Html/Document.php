@@ -14,6 +14,7 @@ use DiDom\Query;
 
 class Document extends BaseDocument
 {
+    protected $loaded = false;
 
     public function __construct($doc = null, $isFile = false, $encoding = 'UTF-8', $type = BaseDocument::TYPE_HTML)
     {
@@ -53,6 +54,7 @@ class Document extends BaseDocument
             $string = $string->__toString();
         }
 
+        $this->loaded = true;
 
         return parent::load($string, $isFile, $type, $options);
     }
