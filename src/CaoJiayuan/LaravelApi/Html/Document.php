@@ -84,4 +84,8 @@ class Document extends BaseDocument
     {
         return $this->find($expression);
     }
+    public function getLinks($expression = 'a')
+    {
+        return $this->find($expression);
+    }
 }
