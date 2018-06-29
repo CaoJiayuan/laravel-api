@@ -33,9 +33,10 @@ class GuzzleLoader implements Loader
         $this->method = $method;
     }
 
-    public function cache($expireMinutes = 0)
+    public function cache($expireMinutes = 0, $driver = null)
     {
         $this->cacheExpire = $expireMinutes;
+        $this->setCacheDriver($driver);
 
         return $this;
     }
