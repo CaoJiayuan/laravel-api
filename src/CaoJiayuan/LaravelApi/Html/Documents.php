@@ -52,9 +52,21 @@ class Documents extends Collection
         return $this;
     }
 
+    public function userAgent($ua)
+    {
+        $this->loader->userAgent($ua);
+        return $this;
+    }
+
     public function cache($minutes, $driver = null)
     {
         $this->loader->setCacheDriver($driver)->cache($minutes);
+        return $this;
+    }
+
+    public function proxyVia($via)
+    {
+        $this->loader->proxyVia($via);
         return $this;
     }
 

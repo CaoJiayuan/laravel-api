@@ -139,6 +139,7 @@ if (!function_exists('serial_number')) {
 
 if (!function_exists('document')) {
     /**
+     * Load a web document, return instance of LazyLoadDocument/Document
      * @param null $doc
      * @return LazyLoadDocument
      */
@@ -152,6 +153,7 @@ if (!function_exists('document')) {
 
 if (!function_exists('documents')) {
     /**
+     * Load multiple web documents, return a collection of Document (lazy load)
      * @param $loads
      * @param bool $string
      * @return Document[]|Documents|LazyLoadDocuments
@@ -161,5 +163,11 @@ if (!function_exists('documents')) {
         $docs = new LazyLoadDocuments($loads, $string);
 
         return $docs;
+    }
+}
+
+if (!function_exists('faker')) {
+    function faker($locale = \Faker\Factory::DEFAULT_LOCALE) {
+        return \Faker\Factory::create($locale);
     }
 }

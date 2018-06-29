@@ -78,6 +78,12 @@ class GuzzleLoader implements Loader
         return $this;
     }
 
+    public function proxyVia($via)
+    {
+        $this->loadOptions['proxy'] = $via;
+        return $this;
+    }
+
     /**
      * @return Client
      */
@@ -92,13 +98,19 @@ class GuzzleLoader implements Loader
 
     public function load()
     {
-        if ($this->cacheExpire != 0) {
+        if ($this->cacheExpire > 0) {
             $key =  $this->getCacheKey($this->url);
             $driver = $this->getCacheDriver();
 
-            return $driver->remember($key, $this->cacheExpire ,function () {
+            $cb = function () {
                 return $this->request()->__toString();
-            });
+            };
+
+            if ($this->cacheExpire == INF) {
+                return $driver->rememberForever($key, $cb);
+            }
+
+            return $driver->remember($key, $this->cacheExpire, $cb);
         }
 
         return $this->request();
@@ -118,7 +130,7 @@ class GuzzleLoader implements Loader
         $urls = array_wrap($this->url);
 
         $uncached = [];
-        if ($this->cacheExpire != 0) {
+        if ($this->cacheExpire > 0) {
             foreach($urls as $key => $url) {
                 if ($cached = $this->getCacheDriver()->getStore()->get($this->getCacheKey($url))) {
                     array_push($results, $fulfilled($cached, $url));
@@ -133,9 +145,11 @@ class GuzzleLoader implements Loader
 
         $client = $this->getGuzzle();
 
-        $requests = function () use ($uncached) {
+        $requests = function () use ($uncached, $client) {
             foreach($uncached as $url) {
-                yield new Request($this->method, $url, $this->loadOptions);
+                yield function () use ($url, $client) {
+                    return $client->requestAsync($this->method, $url, $this->loadOptions);
+                };
             }
         };
 
@@ -147,8 +161,14 @@ class GuzzleLoader implements Loader
                 $body = $response->getBody()->__toString();
                 array_push($results, $fulfilled($body, $url));
 
-                if ($this->cacheExpire != 0) {
-                    $this->getCacheDriver()->put($this->getCacheKey($url), $body, $this->cacheExpire);
+                if ($this->cacheExpire > 0) {
+                    $driver = $this->getCacheDriver();
+                    $key = $this->getCacheKey($url);
+                    if ($this->cacheExpire == INF) {
+                        $driver->forever($key, $body);
+                    } else {
+                        $driver->put($key, $body, $this->cacheExpire);
+                    }
                 }
             },
             'rejected' => $rejected ?: function ($reason, $index) {
