@@ -19,7 +19,7 @@ use JsonSerializable;
  * Class Element
  * @package CaoJiayuan\LaravelApi\Html
  * @method Element first($expression, $type = Query::TYPE_CSS, $wrapNode = true)
- * @method Document find($expression, $type = Query::TYPE_CSS, $wrapNode = true)
+ * @method Element[]|NodeList find($expression, $type = Query::TYPE_CSS, $wrapNode = true)
  */
 class Element extends BaseElement implements JsonSerializable
 {
