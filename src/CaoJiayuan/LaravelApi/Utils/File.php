@@ -9,6 +9,7 @@
 namespace CaoJiayuan\LaravelApi\Utils;
 
 
+use CaoJiayuan\LaravelApi\FileSystem\Downloader;
 use Illuminate\Support\Facades\Storage;
 
 class File
@@ -39,5 +40,12 @@ class File
     public static function getDisk($disk = null)
     {
         return Storage::disk($disk);
+    }
+
+    public static function download($url, $saveFile, $clientOptions = [], $requestOptions = [])
+    {
+        $downloader = new Downloader($url, $clientOptions, $requestOptions);
+
+        return $downloader->download($saveFile);
     }
 }
