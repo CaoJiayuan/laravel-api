@@ -48,4 +48,11 @@ class File
 
         return $downloader->download($saveFile);
     }
+
+    public static function getExtensionByName($filename)
+    {
+        $pos = strrpos($filename, '.');
+
+        return $pos ? substr($filename, $pos + 1) : false;
+    }
 }
