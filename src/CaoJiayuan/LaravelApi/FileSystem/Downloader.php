@@ -59,7 +59,7 @@ class Downloader
         $dir = substr($path, 0, $rSlash);
 
         if (strlen($path) - 1 == $rSlash) {
-            return [$dir, basename($this->url)];
+            return [$dir, basename(explode('?', $this->url, 2)[0])];
         }
 
         return [$dir, substr($path, $rSlash + 1)];
