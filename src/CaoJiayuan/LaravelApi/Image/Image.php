@@ -101,11 +101,13 @@ class Image
         return $this->image;
     }
 
-    public function dominantColor()
+    public function dominantColor($x = 0, $y = 0, $width = null, $height = null)
     {
+        $width = $width ?: $this->getWidth();
+        $height = $height ?: $this->getHeight();
         $rTotal = $bTotal = $gTotal = $aTotal = $total = 0;
-        for ($x = 0; $x < $this->getWidth(); $x++) {
-            for ($y = 0; $y < $this->getHeight(); $y++) {
+        for ($i = $x; $i < $width + $x; $i++) {
+            for ($j = $y; $j < $height + $y; $j++) {
                 list($r, $g, $b, $a) = $this->pickColor($x, $y);
                 $rTotal += $r;
                 $gTotal += $g;
