@@ -103,8 +103,8 @@ class Image
 
     public function dominantColor($x = 0, $y = 0, $width = null, $height = null)
     {
-        $width = $width ?: $this->getWidth();
-        $height = $height ?: $this->getHeight();
+        $width = $width ?: $this->getWidth() - $x;
+        $height = $height ?: $this->getHeight() - $y;
         $rTotal = $bTotal = $gTotal = $aTotal = $total = 0;
         for ($i = $x; $i < $width + $x; $i++) {
             for ($j = $y; $j < $height + $y; $j++) {
