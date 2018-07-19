@@ -174,9 +174,12 @@ if (!function_exists('faker')) {
 }
 
 if (!function_exists('dummy')) {
-    function dummy($template)
+    function dummy($template = null)
     {
         $m = new \CaoJiayuan\LaravelApi\Mock\Mocker(config('app.faker_locale', 'zh_CN'));
+        if ($template === null) {
+            return $m;
+        }
         return $m->fromTemplate($template);
     }
 }

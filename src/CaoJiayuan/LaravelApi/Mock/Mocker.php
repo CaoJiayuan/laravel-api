@@ -30,6 +30,7 @@ class Mocker
         '#^(\d{1,})\+(\d{1,})$#' => 'increase:$2,$1',
         '#^(\d{1,})\-(\d{1,})$#' => 'increase:-$2,$1',
         '#^l:(.*)$#'             => 'list:$1',
+        '#^ip$#'                 => 'ipv4',
     ];
 
     protected $l = Factory::DEFAULT_LOCALE;
@@ -164,11 +165,18 @@ class Mocker
 
     public function format($format, $arguments = [], $value = null)
     {
-        if (method_exists($this, $format)) {
-            return call_user_func_array([$this, $format], array_merge($arguments, [$value]));
+        if ($value !== null) {
+            $params = array_merge($arguments, [$value]);
+        } else {
+            $params = $arguments;
         }
 
-        return $this->faker->format($format, array_merge($arguments, [$value]));
+
+        if (method_exists($this, $format)) {
+            return call_user_func_array([$this, $format], $params);
+        }
+
+        return $this->faker->format($format, $params);
     }
 
     public function list($max, $value = [])
@@ -232,7 +240,11 @@ class Mocker
             case 1:
                 return $min + 0;
             case 2:
-                return $min + 0;
+                if (is_string($max)) {
+                    return $max . $min;
+                }
+
+                return $min + $max;
             case 3:
                 return rand($min, $max) + $value;
         }
