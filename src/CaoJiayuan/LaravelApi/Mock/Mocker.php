@@ -9,6 +9,7 @@
 namespace CaoJiayuan\LaravelApi\Mock;
 
 
+use CaoJiayuan\LaravelApi\Mock\Provider\Image;
 use CaoJiayuan\LaravelApi\Mock\Provider\Text;
 use Faker\Factory;
 use Faker\Generator;
@@ -37,6 +38,10 @@ class Mocker
     {
         $this->l = $locale;
         $this->faker = Factory::create($locale);
+        if ($locale == 'zh_CN') {
+            $this->faker->addProvider(new Text($this->faker));
+            $this->faker->addProvider(new Image($this->faker));
+        }
     }
 
     public static function zhCN()

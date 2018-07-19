@@ -167,7 +167,24 @@ if (!function_exists('documents')) {
 }
 
 if (!function_exists('faker')) {
-    function faker($locale = \Faker\Factory::DEFAULT_LOCALE) {
+    function faker($locale = \Faker\Factory::DEFAULT_LOCALE)
+    {
         return \Faker\Factory::create($locale);
+    }
+}
+
+if (!function_exists('dummy')) {
+    function dummy($template)
+    {
+        $m = new \CaoJiayuan\LaravelApi\Mock\Mocker(config('app.faker_locale', 'zh_CN'));
+        return $m->fromTemplate($template);
+    }
+}
+
+if (!function_exists('dummy_pager')) {
+    function dummy_pager($page = 1, $perPage = 15, $total, $itemTemplate)
+    {
+        $m = new \CaoJiayuan\LaravelApi\Mock\Mocker(config('app.faker_locale', 'zh_CN'));
+        return $m->paginator($page, $perPage, $total, $itemTemplate);
     }
 }
