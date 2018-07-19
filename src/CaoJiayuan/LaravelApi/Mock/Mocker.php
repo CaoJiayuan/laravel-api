@@ -69,7 +69,7 @@ class Mocker
         return $this->parseTemplate($template);
     }
 
-    public function paginator($page = 1, $perPage = 15, $total, $itemTemplate)
+    public function paginator( $total, $itemTemplate, $page = 1, $perPage = 15)
     {
         $size = $perPage;
 
@@ -242,15 +242,36 @@ class Mocker
 
     public function rand($min, $max, $value = null)
     {
+        if (($min == 'true' && $max == 'false') || $max == 'true' && $min == 'false') {
+            return $this->randomElement([true, false]);
+        }
+
         if (is_array($max)) {
             return $this->randomElements($max, $min);
         }
 
         if (!is_null($value)) {
-            return $this->randomElements($value, rand($min, $max));
+            if (is_array($value)) {
+                return $this->randomElements($value, rand($min, $max));
+            } else {
+                return $this->randomString(rand($min, $max), $value);
+            }
         }
 
         return rand($min, $max);
+    }
+
+    public function randomString($max, $seed = null)
+    {
+        if (is_null($seed)) {
+            return str_random($max);
+        }
+        if ($max > mb_strlen($seed)) {
+            return $seed;
+        }
+        $start = rand(0, mb_strlen($seed) - $max);
+
+        return mb_substr($seed, $start, $max);
     }
 
     public function pick($num, $value = null)

@@ -182,9 +182,9 @@ if (!function_exists('dummy')) {
 }
 
 if (!function_exists('dummy_pager')) {
-    function dummy_pager($page = 1, $perPage = 15, $total, $itemTemplate)
+    function dummy_pager($total, $itemTemplate, $page = 1, $perPage = 15)
     {
         $m = new \CaoJiayuan\LaravelApi\Mock\Mocker(config('app.faker_locale', 'zh_CN'));
-        return $m->paginator($page, $perPage, $total, $itemTemplate);
+        return $m->paginator($total, $itemTemplate, $page, $perPage);
     }
 }
