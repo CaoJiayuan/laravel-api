@@ -11,6 +11,7 @@ namespace CaoJiayuan\LaravelApi\Mock;
 
 use CaoJiayuan\LaravelApi\Mock\Provider\Image;
 use CaoJiayuan\LaravelApi\Mock\Provider\Text;
+use Carbon\Carbon;
 use Faker\Factory;
 use Faker\Generator;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -70,7 +71,7 @@ class Mocker
         return $this->parseTemplate($template);
     }
 
-    public function paginator( $total, $itemTemplate, $page = 1, $perPage = 15)
+    public function paginator($total, $itemTemplate, $page = 1, $perPage = 15)
     {
         $size = $perPage;
 
@@ -219,6 +220,9 @@ class Mocker
     public function date($format = null, $now = null)
     {
         if (is_null($format)) {
+            $format = 'Y-m-d H:i:s';
+        } else if (is_null($now)) {
+            $now = $format;
             $format = 'Y-m-d H:i:s';
         }
 
