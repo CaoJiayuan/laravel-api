@@ -111,7 +111,7 @@ rules:
       dummy('rand|1,100');// return random number between 1 and 100
       dummy('rand|true,false');
       dummy([
-        'data|list:10|rand:1,5' => [// working with pipeline, generate 10 items, random return 1-5 item[s]
+        'data|list:10|rand:1,5' => [// working with pipeline, generate 10 items, randomly take 1-5 item[s]
              'id|1+1',   
             'name|name',
          ]
