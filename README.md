@@ -117,6 +117,23 @@ rules:
          ]
       ]);
     ```
+* ```pick[:num=1]``` pick ```num``` of item from value, if ```num``` = 1, return single item
+* ```from``` return data from giving value
+* ```db[:table,limit=null]``` get result from database with giving value as callback
+
+    ```php
+     <?php
+      dummy([
+        'data1|db:users' => function(\Illuminate\Database\Query\Builder $builder) {
+              /// database query
+            $builder->select(['id', 'name']);
+            /// ......
+         },
+         'data2|db:articles,2', /// randomly take 2 row of table articles 
+         'data3|db:connection1.articles,2', /// specified connection
+         'data4|db:articles,10|pick:2' /// working with pipeline
+      ]);
+    ```
 
 #### 4.Helpers
 
