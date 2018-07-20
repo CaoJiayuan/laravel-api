@@ -21,6 +21,10 @@ class PipelineQuery
     private $model;
 
     protected $alias = [
+        '#^rand$#' => 'inRandomOrder',
+        '#^sort:(.*)$#'  => 'orderBy:$1',
+        '#^group:(.*)$#'  => 'groupBy:$1',
+        '#^grep:(.*?),(.*)$#'  => 'where:$1,like,%$2%',
     ];
 
     protected $builder = null;
