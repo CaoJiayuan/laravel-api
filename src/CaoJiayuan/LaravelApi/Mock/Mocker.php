@@ -11,9 +11,11 @@ namespace CaoJiayuan\LaravelApi\Mock;
 
 use CaoJiayuan\LaravelApi\Mock\Provider\Image;
 use CaoJiayuan\LaravelApi\Mock\Provider\Text;
-use Carbon\Carbon;
 use Faker\Factory;
 use Faker\Generator;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
@@ -32,6 +34,8 @@ class Mocker
         '#^(\d{1,})\-(\d{1,})$#' => 'increase:-$2,$1',
         '#^l:(.*)$#'             => 'list:$1',
         '#^ip$#'                 => 'ipv4',
+        '#^string:(.*)$#'        => 'randomString:$1',
+        '#^string$#'             => 'randomString:16',
     ];
 
     protected $l = Factory::DEFAULT_LOCALE;
@@ -225,8 +229,18 @@ class Mocker
             $now = $format;
             $format = 'Y-m-d H:i:s';
         }
+        if ($now instanceof \DateTime) {
+            return $now->format($format);
+        }
 
         return date($format, $now ?: time());
+    }
+
+    public function randDate($start, $end = 'now', $format = 'Y-m-d H:i:s')
+    {
+        $dt = $this->dateTimeBetween($start, $end);
+
+        return $dt->format($format);
     }
 
     public function time($str = null)
@@ -303,12 +317,75 @@ class Mocker
 
         if (is_array($value)) {
             return $this->randomElement($value);
+        } else if (is_string($value)) {
+            return $this->randomString($num, $value);
+        } else {
+            return $this->pick($num, $this->from($value));
         }
-
-
-        return $value;
     }
 
+    public function item($value)
+    {
+        return $this->fromTemplate($value);
+    }
+
+    public function from($value)
+    {
+        $result = $this->useAsClosure($value)($this);
+        if ($result instanceof Builder || $result instanceof EloquentBuilder) {
+            $return = $result->get()->toArray();
+
+            object_to_array($return, $result);
+        }
+
+        if ($result instanceof Arrayable) {
+            $result = $result->toArray();
+        }
+
+        return $result;
+    }
+
+    public function db($param, $value = null, $other = null)
+    {
+        $partials = explode('.', $param, 2);
+        $con = config('database.default');
+        $table = $param;
+        if (count($partials) > 1) {
+            $con = $partials[0];
+            $table = $partials[1];
+        }
+
+        $builder = \DB::connection($con)->table($table);
+        if (is_null($value)) {
+            $value = function (Builder $query) {
+                return $query->get()->toArray();
+            };
+        } else {
+            if (is_numeric($value)) {
+                $value = function (Builder $query) use ($value, $other) {
+                    $query->inRandomOrder()->take($value);
+                    return $this->useAsClosure($other)($query);
+                };
+            } else {
+                $value = function (Builder $query) use ($value, $other) {
+                    if (is_null($other)) {
+                        return $this->useAsClosure($value)($query);
+                    }
+                    return $this->useAsClosure($other)($query);
+                };
+            }
+        }
+
+        $return = $value($builder);
+        if ($return instanceof Builder || is_null($return)) {
+            $return = $builder->get()->toArray();
+        }
+
+        $result = [];
+        object_to_array($return, $result);
+
+        return $result;
+    }
 
     public function __call($name, $arguments)
     {
