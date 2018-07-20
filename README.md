@@ -129,7 +129,7 @@ rules:
             $builder->select(['id', 'name']);
             /// ......
          },
-         'data2|db:articles,2', /// randomly take 2 row of table articles 
+         'data2|db:articles,2', /// randomly take 2 rows from table articles 
          'data3|db:connection1.articles,2', /// specified connection
          'data4|db:articles,10|pick:2' /// working with pipeline
       ]);
