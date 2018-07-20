@@ -34,29 +34,89 @@ class Handler extends ExceptionHandler
 }
 
 ```
-#### 2.Build-in http server
-
-Usage
-
-```bash
-php artisan api-util:server [start|restart|stop|status] [--port=8888 : Listen port] [--count=4 : Work process] [--daemon=1 : Daemon mode]
-```
-You can write you APIs as usual. each time you change the code, you should run ```php artisan api-util:server restart```
-
-#### 3.Build-in Websocket server
+#### 2.Eloquent pipeline query
+* Trait ```CaoJiayuan\LaravelApi\Database\Eloquent\Helpers\Pipelineable```
 
 * Usage
+```php
+<?php
+namespace App;
 
-```bash
-php artisan api-util:ws [start|restart|stop|status] [--port=3000] [--count=4] [--daemon=1]
+use CaoJiayuan\LaravelApi\Database\Eloquent\Helpers\Pipelineable;
+use Illuminate\Database\Eloquent\Model;
+
+class Foo extends Model {
+    
+    use Pipelineable;
+    
+    public function relate() {
+        return $this->belongsTo(App\Bar::class);
+    }
+}
+
+\App\Foo::pipeline('with:relate|select:id,name');//equals \App\Foo::with('relate')->select(['id','name'])->get();
+\App\Foo::join('baz', 'foo_id', '=', 'baz_id')
+          ->pipeline('with:relate|select:id,name,baz.title as baz|get|pluck:name|random');
+
 ```
 
-* Events
+#### 3.Dummy data generator
+Generate test data with giving template (inspired by [Mock.js](https://github.com/nuysoft/Mock)), working with [fzaninotto/Faker](https://github.com/fzaninotto/Faker)
 
-    1. Client connected ```CaoJiayuan\LaravelApi\WebSocket\Events\WebSocketConnected```
-    2. Message received ```CaoJiayuan\LaravelApi\WebSocket\Events\WebSocketMessage```
-    3. Client closed ```CaoJiayuan\LaravelApi\WebSocket\Events\WebSocketClosed```
-    4. Worker started ```CaoJiayuan\LaravelApi\WebSocket\Events\WorkerStarted```
+Usage: 
+```
+template = [
+    'key|rule1[:params][|rule2[:params]]' [=> 'value']
+]
+dummy(template) array|mixed
+dummy_pager(total, template [,page=1] [,perPage=25]) LengthAwarePaginator
+```
+example:
+```php
+<?php
+
+dummy([
+   'id' => 1,
+   'name|name',
+   'address|address',
+   'data|list:2' => [
+        'id|1+1',   
+        'name|name',   
+    ]
+]);
+```
+results:
+```json
+{
+    "id":1,
+    "name":"Mrs. Bulah Hilll MD",
+    "address":"445 Hudson Isle\nJunehaven, NM 74631",
+    "data":[
+        {"id":1,"name":"Sophie Kris"},
+        {"id":2,"name":"Cooper Thompson"}
+    ]
+}
+```
+
+
+rules:
+* ```list[:size=20]``` generate array of data with giving template as value, alias ```l:size```
+* ```increase[:step=1,base=1]``` generate number auto-increase ```step``` from ```base``` in list template, alias ```base+step```
+* ```date[:format=Y-m-d H:i:s,now=time()]``` generate datetime string with format
+* ```randDate[:start,end='now',format='Y-m-d H:i:s']``` generate random datetime string between ```start``` and ```end```
+* ```rand[:min,max,value=null]``` generate random value, eg:
+
+    ```php
+     <?php
+      dummy('rand|1,100');// return random number between 1 and 100
+      dummy('rand|true,false');
+      dummy([
+        'data|list:10|rand:1,5' => [// working with pipeline, generate 10 items, random return 1-5 item[s]
+             'id|1+1',   
+            'name|name',
+         ]
+      ]);
+    ```
 
 #### 4.Helpers
 
@@ -87,7 +147,3 @@ class FooController extends Controller
 }
 
 ```
-
-#### 5. Recommended
-
-```workerman/workerman``` required to use server/ws command 
