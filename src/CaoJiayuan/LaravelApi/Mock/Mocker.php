@@ -347,7 +347,7 @@ class Mocker
 
     public function append($append, $value)
     {
-        $append = $this->resolveMethodInjection($append);
+//        $append = $this->resolveMethodInjection($append);
 
         if (is_array($value)) {
             array_push($value, $append);
@@ -359,7 +359,7 @@ class Mocker
 
     public function prepend($prepend, $value)
     {
-        $prepend = $this->resolveMethodInjection($prepend);
+//        $prepend = $this->resolveMethodInjection($prepend);
         if (is_array($value)) {
             array_unshift($value, $prepend);
             return $value;
