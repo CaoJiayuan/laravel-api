@@ -36,6 +36,8 @@ class Mocker
         '#^ip$#'                 => 'ipv4',
         '#^string:(.*)$#'        => 'randomString:$1',
         '#^string$#'             => 'randomString:16',
+        '#^\+(.*)$#'             => 'append:$1',
+        '#^(.*)\+$#'             => 'prepend:$1',
     ];
 
     protected $l = Factory::DEFAULT_LOCALE;
@@ -158,6 +160,11 @@ class Mocker
                 }
             }
             $formats = explode(':', $partial, 2);
+            if (count($formats) > 1) {
+                $paramString = $formats[1];
+
+                $formats[1] = $this->resolveParamString($paramString);
+            }
 
             $rules[] = [
                 $formats[0],
@@ -166,6 +173,20 @@ class Mocker
         }
 
         return [$first, $rules];
+    }
+
+    protected function resolveParamString($string)
+    {
+        if (preg_match('#\{\{.*?\}\}#', $string)) {
+            $result = preg_replace_callback('#\{\{(.*?)\}\}#', function ($match) {
+
+                return $this->fromTemplate($match[1]);
+            }, $string);
+
+            return $result;
+        }
+
+        return $string;
     }
 
     public function format($format, $arguments = [], $value = null)
@@ -324,6 +345,29 @@ class Mocker
         }
     }
 
+    public function append($append, $value)
+    {
+        $append = $this->resolveMethodInjection($append);
+
+        if (is_array($value)) {
+            array_push($value, $append);
+            return $value;
+        }
+
+        return $value . $append;
+    }
+
+    public function prepend($prepend, $value)
+    {
+        $prepend = $this->resolveMethodInjection($prepend);
+        if (is_array($value)) {
+            array_unshift($value, $prepend);
+            return $value;
+        }
+
+        return $prepend . $value;
+    }
+
     public function item($value)
     {
         return $this->fromTemplate($value);
@@ -385,6 +429,19 @@ class Mocker
         object_to_array($return, $result);
 
         return $result;
+    }
+
+    protected function resolveMethodInjection($input)
+    {
+        if (preg_match('#^(.*?)([a-zA-Z]*?)\((.*?)\)(.*)$#', $input, $match)) {
+
+            list($_, $p, $method, $paramString, $a) = $match;
+            $resolved = $this->format($method, explode(',', $paramString));
+
+            return $p . $resolved . $a;
+        }
+
+        return $input;
     }
 
     public function __call($name, $arguments)
