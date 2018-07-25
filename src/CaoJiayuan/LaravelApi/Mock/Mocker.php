@@ -431,6 +431,16 @@ class Mocker
         return $result;
     }
 
+    public function join($glue, $value)
+    {
+        return implode($glue, $value);
+    }
+
+    public function split($delimiter, $value)
+    {
+        return explode($delimiter, $value);
+    }
+
     protected function resolveMethodInjection($input)
     {
         if (preg_match('#^(.*?)([a-zA-Z]*?)\((.*?)\)(.*)$#', $input, $match)) {
