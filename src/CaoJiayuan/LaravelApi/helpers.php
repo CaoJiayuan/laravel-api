@@ -1,5 +1,6 @@
 <?php
 
+use CaoJiayuan\LaravelApi\Data\Transfer;
 use CaoJiayuan\LaravelApi\Html\Document;
 use CaoJiayuan\LaravelApi\Html\Documents;
 use CaoJiayuan\LaravelApi\Html\LazyLoadDocument;
@@ -189,5 +190,18 @@ if (!function_exists('dummy_pager')) {
     {
         $m = new \CaoJiayuan\LaravelApi\Mock\Mocker(config('app.faker_locale', 'zh_CN'));
         return $m->paginator($total, $itemTemplate, $page, $perPage);
+    }
+}
+
+if (!function_exists('transform_data')) {
+    function transform_data($data, $template, $list = false)
+    {
+        $transfer = new Transfer($data);
+
+        if ($list) {
+            return $transfer->transformList($template);
+        }
+
+        return $transfer->transform($template);
     }
 }
