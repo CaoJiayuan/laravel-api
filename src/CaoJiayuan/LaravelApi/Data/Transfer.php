@@ -75,6 +75,16 @@ class Transfer
         return Carbon::parse($v)->timestamp;
     }
 
+    public function take($key)
+    {
+        if (is_null($key)) {
+            return $this;
+        }
+        $this->data = data_get($this->data, $key);
+
+        return $this;
+    }
+
     protected function transformWithTemplate($template)
     {
         $result = [];

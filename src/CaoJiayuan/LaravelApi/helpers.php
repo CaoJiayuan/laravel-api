@@ -194,9 +194,13 @@ if (!function_exists('dummy_pager')) {
 }
 
 if (!function_exists('transform_data')) {
-    function transform_data($data, $template, $list = false)
+    function transform_data($data, $template = null, $list = false)
     {
         $transfer = new Transfer($data);
+
+        if (is_null($template)) {
+            return $transfer;
+        }
 
         if ($list) {
             return $transfer->transformList($template);
