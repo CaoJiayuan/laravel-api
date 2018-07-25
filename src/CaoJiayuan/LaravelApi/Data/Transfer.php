@@ -106,7 +106,13 @@ class Transfer
                         $formats = $partials;
                     }
                 }
-                $result[$k] = $this->callFormats($formats, $v);
+                if (is_array($k)) {
+                    foreach($k as $i) {
+                        $result[$i] = $this->callFormats($formats, $v);
+                    }
+                } else {
+                    $result[$k] = $this->callFormats($formats, $v);
+                }
             }
         }
 
