@@ -116,7 +116,7 @@ class Transfer
     protected function callFormats($formats, $v)
     {
         return array_reduce($formats, function ($carry, $format) {
-            return $this->getFormat($format)($carry);
+            return $this->getFormat($format)($carry, $this->data);
         }, $v);
     }
 
