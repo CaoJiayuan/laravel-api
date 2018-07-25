@@ -36,6 +36,7 @@ class Mocker
         '#^ip$#'                 => 'ipv4',
         '#^string:(.*)$#'        => 'randomString:$1',
         '#^string$#'             => 'randomString:16',
+        '#^null$#'                => 'mayNull',
         '#^\+(.*)$#'             => 'append:$1',
         '#^(.*)\+$#'             => 'prepend:$1',
     ];
@@ -439,6 +440,11 @@ class Mocker
     public function split($delimiter, $value)
     {
         return explode($delimiter, $value);
+    }
+
+    public function mayNull($value)
+    {
+        return $this->randomElement([$value, null]);
     }
 
     protected function resolveMethodInjection($input)
