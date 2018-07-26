@@ -96,15 +96,13 @@ class Transfer
                 if (is_array($to)) {
                     $k = array_shift($to);
                     $formats = $to;
+                } else if (is_callable($to)) {
+                    $k = $from;
+                    $formats = [$to];
                 } else {
                     $partials = explode('|', $to);
-                    if (count($partials) == 1) {
-                        $k = $from;
-                        $formats = [$partials[0]];
-                    } else {
-                        $k = array_shift($partials);
-                        $formats = $partials;
-                    }
+                    $k = array_shift($partials);
+                    $formats = $partials;
                 }
                 if (is_array($k)) {
                     foreach($k as $i) {
