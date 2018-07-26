@@ -91,7 +91,7 @@ class Transfer implements ArrayAccess
         $result = [];
         foreach ($template as $from => $to) {
             if (is_numeric($from)) {
-                $result[$to] = data_get($this->data, $to);
+                array_set($result, $to, data_get($this->data, $to));
             } else {
                 $v = array_get($this->data, $from);
                 if (is_array($to)) {
@@ -107,10 +107,10 @@ class Transfer implements ArrayAccess
                 }
                 if (is_array($k)) {
                     foreach($k as $i) {
-                        $result[$i] = $this->callFormats($formats, $v);
+                        array_set($result, $i, $this->callFormats($formats, $v));
                     }
                 } else {
-                    $result[$k] = $this->callFormats($formats, $v);
+                    array_set($result, $k, $this->callFormats($formats, $v));
                 }
             }
         }
