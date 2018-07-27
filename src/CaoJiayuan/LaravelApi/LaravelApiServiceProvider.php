@@ -12,6 +12,7 @@ namespace CaoJiayuan\LaravelApi;
 use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
 use CaoJiayuan\LaravelApi\Http\Proxy\HttpProxyCommand;
 use CaoJiayuan\LaravelApi\Http\Server\ServerCommand;
+use CaoJiayuan\LaravelApi\Signature\Validator;
 use CaoJiayuan\LaravelApi\WebSocket\ServerCommand as WsServerCommand;
 use Illuminate\Log\Writer;
 use Illuminate\Support\ServiceProvider;
@@ -21,7 +22,7 @@ use Tymon\JWTAuth\Providers\LaravelServiceProvider;
 class LaravelApiServiceProvider extends ServiceProvider
 {
 
-    protected $configs = ['laravel-api'];
+    protected $configs = ['api-util'];
 
     public function boot()
     {
@@ -41,7 +42,7 @@ class LaravelApiServiceProvider extends ServiceProvider
         $this->publishes([
             $resources => $resourcePath,
             $configs   => $configPath
-        ]);
+        ], 'api-util');
     }
 
     public function register()
@@ -57,6 +58,15 @@ class LaravelApiServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->registerCommands();
         }
+        $this->registerSignature();
+    }
+
+    protected function registerSignature()
+    {
+        $this->app->singleton(Validator::class, function ($app) {
+            return new Validator($app['config']->get('api-util.signature.key', 'somerandomstring'),
+                $app['config']->get('api-util.signature.nonce_length', 16));
+        });
     }
 
     protected function registerIfExists($provider)
@@ -68,7 +78,7 @@ class LaravelApiServiceProvider extends ServiceProvider
 
     protected function setLogWriter()
     {
-        if (!config('laravel-api.separate_log_file')) {
+        if (!config('api-util.separate_log_file')) {
             return;
         }
 

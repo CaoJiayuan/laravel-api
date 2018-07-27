@@ -11,7 +11,7 @@ use Tymon\JWTAuth\Providers\LumenServiceProvider;
 
 class LumenApiServiceProvider extends LaravelApiServiceProvider
 {
-    protected $configs = ['laravel-api'];
+    protected $configs = ['api-util'];
 
 
     public function register()
@@ -27,6 +27,7 @@ class LumenApiServiceProvider extends LaravelApiServiceProvider
         if (PHP_SAPI == 'cli') {
             $this->registerCommands();
         }
+        $this->registerSignature();
     }
 
     public function publish()
@@ -36,7 +37,7 @@ class LumenApiServiceProvider extends LaravelApiServiceProvider
 
     protected function setLogWriter()
     {
-        if (!config('laravel-api.separate_log_file')) {
+        if (!config('api-util.separate_log_file')) {
             return;
         }
 
@@ -56,7 +57,9 @@ class LumenApiServiceProvider extends LaravelApiServiceProvider
 
     protected function mergeConfig()
     {
+
         foreach ($this->configs as $key) {
+            $this->app->configure($key);
             $this->mergeConfigFrom(__DIR__.'/../../config/'. $key. '.php', $key);
         }
     }
