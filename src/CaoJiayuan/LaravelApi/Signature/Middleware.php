@@ -35,8 +35,8 @@ class Middleware
     {
         $t = $request->header('X-Timestamp');
         $s = $request->header('X-Signature');
-
-        if ($this->validator->validate($s, $t)) {
+        $interval = config('api-util.signature.interval', 5);
+        if ((abs(intval($t) - time()) < $interval) && $this->validator->validate($s, $t)) {
             return $next($request);
         }
 
