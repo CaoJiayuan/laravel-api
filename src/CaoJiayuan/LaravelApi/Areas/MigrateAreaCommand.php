@@ -13,7 +13,7 @@ use CaoJiayuan\LaravelApi\Areas\Entity\Area;
 use CaoJiayuan\LaravelApi\Areas\Entity\City;
 use CaoJiayuan\LaravelApi\Areas\Entity\Province;
 use Illuminate\Console\Command;
-use League\Flysystem\FilesystemNotFoundException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class MigrateAreaCommand extends Command
 {
@@ -26,7 +26,7 @@ class MigrateAreaCommand extends Command
     {
         $file = storage_path($this->argument('file'));
         if (!file_exists($file)) {
-            throw new FilesystemNotFoundException(sprintf('data file not found [%s]', $file));
+            throw new FileNotFoundException(sprintf('data file not found [%s]', $file));
         }
 
         $location = require $file;
