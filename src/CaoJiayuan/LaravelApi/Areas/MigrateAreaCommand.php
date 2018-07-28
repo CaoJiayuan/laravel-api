@@ -14,6 +14,7 @@ use CaoJiayuan\LaravelApi\Areas\Entity\City;
 use CaoJiayuan\LaravelApi\Areas\Entity\Province;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Support\Facades\DB;
 
 class MigrateAreaCommand extends Command
 {
