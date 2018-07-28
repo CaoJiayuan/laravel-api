@@ -31,7 +31,7 @@ class MigrateAreaCommand extends Command
 
         $location = require $file;
 
-        if (!$this->option('force') && Area::count() < 1) {
+        if (!$this->option('force') && Area::count() > 1) {
             $this->warn('Areas data exists, if you want migrate anyway, use [--force] option');
             return;
         }
