@@ -10,6 +10,7 @@ namespace CaoJiayuan\LaravelApi;
 
 
 use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
+use CaoJiayuan\LaravelApi\Areas\MigrateAreaCommand;
 use CaoJiayuan\LaravelApi\Http\Proxy\HttpProxyCommand;
 use CaoJiayuan\LaravelApi\Http\Server\ServerCommand;
 use CaoJiayuan\LaravelApi\Signature\Validator;
@@ -119,9 +120,11 @@ class LaravelApiServiceProvider extends ServiceProvider
         $this->registerServerCommend();
         $this->registerProxyCommend();
         $this->registerWsCommend();
+        $this->registerAreaCommand();
         $this->commands(['command.laravel-api.server']);
         $this->commands(['command.laravel-api.proxy']);
         $this->commands(['command.laravel-api.ws']);
+        $this->commands(['command.laravel-api.area']);
     }
 
     protected function registerServerCommend()
@@ -142,6 +145,13 @@ class LaravelApiServiceProvider extends ServiceProvider
     {
         $this->app->singleton('command.laravel-api.ws', function ($app) {
             return new WsServerCommand();
+        });
+    }
+
+    protected function registerAreaCommand()
+    {
+        $this->app->singleton('command.laravel-api.area', function ($app) {
+            return new MigrateAreaCommand();
         });
     }
 }
