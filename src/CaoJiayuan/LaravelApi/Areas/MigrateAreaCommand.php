@@ -17,7 +17,7 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class MigrateAreaCommand extends Command
 {
-    protected $signature = 'api-util:areas {file=data/cities.php : Data file relative to storage path} {--force : Force migrate}';
+    protected $signature = 'api-util:areas {file=data/areas.php : Data file relative to storage path} {--force : Force migrate}';
 
     protected $description = 'Migrate china areas data (preset data file and migration file in [vendor/cao-jiayuan/laravel-api/src/misc/areas/])';
 
