@@ -14,7 +14,7 @@ use CaoJiayuan\LaravelApi\Data\Exceptions\InvalidDataException;
 use Carbon\Carbon;
 use Illuminate\Contracts\Support\Arrayable;
 
-class Transfer implements ArrayAccess
+class Transfer implements ArrayAccess, Arrayable
 {
 
     private $data;
@@ -81,9 +81,8 @@ class Transfer implements ArrayAccess
         if (is_null($key)) {
             return $this;
         }
-        $this->data = data_get($this->data, $key);
 
-        return $this;
+        return new static(data_get($this->data, $key));
     }
 
     protected function transformWithTemplate($template)
@@ -106,7 +105,7 @@ class Transfer implements ArrayAccess
                     $formats = $partials;
                 }
                 if (is_array($k)) {
-                    foreach($k as $i) {
+                    foreach ($k as $i) {
                         array_set($result, $i, $this->callFormats($formats, $v));
                     }
                 } else {
@@ -210,5 +209,15 @@ class Transfer implements ArrayAccess
     public function offsetUnset($offset)
     {
         unset($this->data[$offset]);
+    }
+
+    /**
+     * Get the instance as an array.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return $this->data;
     }
 }
