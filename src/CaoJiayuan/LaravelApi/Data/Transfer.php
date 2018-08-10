@@ -82,7 +82,7 @@ class Transfer implements ArrayAccess, Arrayable
             return $this;
         }
 
-        return new static(data_get($this->data, $key));
+        return new self(data_get($this->data, $key));
     }
 
     protected function transformWithTemplate($template)
