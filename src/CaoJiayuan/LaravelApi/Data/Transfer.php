@@ -53,8 +53,11 @@ class Transfer implements ArrayAccess, Arrayable
 
     public function transformList($template)
     {
-        if (!is_array(reset($this->data))) {
-            throw new InvalidDataException('Invalid data giving');
+
+        if (!empty($this->data)) {
+            if (!is_array(reset($this->data))) {
+                throw new InvalidDataException('Invalid data giving');
+            }
         }
 
         return array_map(function ($item) use ($template) {
