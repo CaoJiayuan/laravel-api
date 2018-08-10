@@ -62,7 +62,7 @@ class Transfer implements ArrayAccess, Arrayable
 
         return array_map(function ($item) use ($template) {
             return (new self($item))->transform($template);
-        }, $this->data);
+        }, array_wrap($this->data));
     }
 
     public function formatInt($v)
