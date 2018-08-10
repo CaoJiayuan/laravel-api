@@ -58,7 +58,7 @@ class Transfer implements ArrayAccess, Arrayable
         }
 
         return array_map(function ($item) use ($template) {
-            return (new static($item))->transform($template);
+            return (new self($item))->transform($template);
         }, $this->data);
     }
 
