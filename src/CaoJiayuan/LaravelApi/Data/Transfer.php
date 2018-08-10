@@ -43,6 +43,11 @@ class Transfer implements ArrayAccess, Arrayable
         if (is_callable($template)) {
             return $template($this->data);
         }
+
+        if (empty($this->data)) {
+            return $this->data;
+        }
+
         if (is_array($template)) {
             return $this->transformWithTemplate($template);
         }
