@@ -196,8 +196,9 @@ if (!function_exists('dummy_pager')) {
 if (!function_exists('transform_data')) {
     function transform_data($data, $template = null, $list = false)
     {
-        $transfer = new Transfer($data);
+        $transfer = new Transfer();
 
+        $transfer->setData($data);
         if (is_null($template)) {
             return $transfer;
         }
