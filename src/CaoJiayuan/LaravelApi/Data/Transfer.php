@@ -17,7 +17,7 @@ use Illuminate\Contracts\Support\Arrayable;
 class Transfer implements ArrayAccess, Arrayable
 {
 
-    private $data;
+    protected $data;
 
     protected $alias = [
         'time' => 'timestamp'
