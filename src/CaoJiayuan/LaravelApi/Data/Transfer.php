@@ -84,6 +84,11 @@ class Transfer implements ArrayAccess, Arrayable
         return Carbon::parse($v)->timestamp;
     }
 
+    public function formatDiff($v, $data, $diff = 0)
+    {
+        return $v + $diff;
+    }
+
     public function take($key)
     {
         if (is_null($key)) {
@@ -134,9 +139,12 @@ class Transfer implements ArrayAccess, Arrayable
 
     protected function getFormat($name)
     {
+        list($name, $params) = $this->parseFormatter($name);
+
         if (is_callable($name) && !is_string($name)) {
-            return function ($v) use ($name) {
-                return call_user_func_array($name, func_get_args());
+            return function ($v) use ($name, $params) {
+                $arr = func_get_args();
+                return call_user_func_array($name, array_merge($arr, $params));
             };
         }
 
@@ -147,14 +155,28 @@ class Transfer implements ArrayAccess, Arrayable
 
         $formatMethod = 'format' . ucfirst($method);
         if (method_exists($this, $formatMethod)) {
-            return function ($v) use ($formatMethod) {
-                return call_user_func_array([$this, $formatMethod], func_get_args());
+            return function ($v) use ($formatMethod, $params) {
+                $arr = func_get_args();
+
+                return call_user_func_array([$this, $formatMethod], array_merge($arr, $params));
             };
         }
 
         return function ($v) use ($name) {
             return $v === null ? $name : $v;
         };
+    }
+
+    protected function parseFormatter($name)
+    {
+        $formats = explode(':', $name, 2);
+        if (count($formats) > 1) {
+            $paramString = $formats[1];
+
+            return [$formats[0], explode(',', $paramString)];
+        }
+
+        return [$formats[0], []];
     }
 
     /**
