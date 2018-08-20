@@ -17,23 +17,17 @@ use Illuminate\Contracts\Support\Arrayable;
 class Transfer implements ArrayAccess, Arrayable
 {
 
-    private $data;
+    protected $data;
 
     protected $alias = [
         'time' => 'timestamp'
     ];
-
-    public function __construct($data)
-    {
-        $this->data = $this->morphData($data);
-    }
 
     protected function morphData($data)
     {
         if ($data instanceof Arrayable) {
             return $data->toArray();
         }
-
 
         return $data;
     }
@@ -66,7 +60,7 @@ class Transfer implements ArrayAccess, Arrayable
         }
 
         return array_map(function ($item) use ($template) {
-            return (new self($item))->transform($template);
+            return (new static())->setData($item)->transform($template);
         }, array_wrap($this->data));
     }
 
@@ -84,6 +78,11 @@ class Transfer implements ArrayAccess, Arrayable
         return Carbon::parse($v)->timestamp;
     }
 
+    public function formatTrim($v)
+    {
+        return trim($v);
+    }
+
     public function formatDiff($v, $data, $diff = 0)
     {
         return $v + $diff;
@@ -95,7 +94,9 @@ class Transfer implements ArrayAccess, Arrayable
             return $this;
         }
 
-        return new self(data_get($this->data, $key));
+        $transfer = new static();
+
+        return $transfer->setData(data_get($this->data, $key));
     }
 
     protected function transformWithTemplate($template)
@@ -249,5 +250,15 @@ class Transfer implements ArrayAccess, Arrayable
     public function toArray()
     {
         return $this->data;
+    }
+
+    /**
+     * @param array $data
+     * @return static
+     */
+    public function setData($data)
+    {
+        $this->data = $this->morphData($data);
+        return $this;
     }
 }
