@@ -13,6 +13,7 @@ use CaoJiayuan\LaravelApi\Content\Html;
 use CaoJiayuan\LaravelApi\Content\Text;
 use DiDom\Element as BaseElement;
 use DiDom\Query;
+use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
 
 /**
@@ -21,7 +22,7 @@ use JsonSerializable;
  * @method Element first($expression, $type = Query::TYPE_CSS, $wrapNode = true)
  * @method Element[]|NodeList find($expression, $type = Query::TYPE_CSS, $wrapNode = true)
  */
-class Element extends BaseElement implements JsonSerializable
+class Element extends BaseElement implements JsonSerializable, Arrayable
 {
 
     public static function create($name, $value = null, array $attributes = [])
@@ -81,5 +82,15 @@ class Element extends BaseElement implements JsonSerializable
     public function jsonSerialize()
     {
         return $this->html();
+    }
+
+    /**
+     * Get the instance as an array.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return $this->attributes() ?: [];
     }
 }

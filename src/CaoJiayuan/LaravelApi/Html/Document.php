@@ -35,7 +35,7 @@ class Document extends BaseDocument
      * @param string $type
      * @param bool $wrapNode
      * @param null $contextNode
-     * @return \Illuminate\Support\Collection
+     * @return NodeList
      */
     public function find($expression, $type = Query::TYPE_CSS, $wrapNode = true, $contextNode = null)
     {
