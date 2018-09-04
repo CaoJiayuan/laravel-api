@@ -170,6 +170,10 @@ class Transfer implements ArrayAccess, Arrayable
 
     protected function parseFormatter($name)
     {
+        if (!is_string($name)) {
+
+            return [$name, []];
+        }
         $formats = explode(':', $name, 2);
         if (count($formats) > 1) {
             $paramString = $formats[1];
