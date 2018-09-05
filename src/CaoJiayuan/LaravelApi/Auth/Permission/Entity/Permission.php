@@ -165,14 +165,20 @@ class Permission extends EntrustPermission
 
     public static function flattened($roles)
     {
+        $table = (new static())->getTable();
+
         $ids = [];
         foreach ($roles as $role) {
             $ids[] = $role->id;
         }
         $prefix = \DB::getTablePrefix();
-        $i = implode(',', $ids) ?: "''";
-        $builder = Permission::leftJoin('permission_role', 'permission_role.permission_id', '=', 'permissions.id');
-        $select = \DB::raw("CASE WHEN {$prefix}permission_role.role_id IN ($i) THEN true ELSE false END AS granted");
+        $permissionRoleTable = Config::get('entrust.permission_role_table', 'permission_role');
+
+        $builder = Permission::leftJoin('permission_role', function (JoinClause $clause) use ($ids, $permissionRoleTable) {
+            $clause->on( $permissionRoleTable. '.permission_id', '=', 'permissions.id');
+            $clause->whereIn($permissionRoleTable. '.role_id',  $ids);
+        });
+        $select = \DB::raw("CASE WHEN {$prefix}permission_role.{$permissionRoleTable} IS NOT NULL THEN true ELSE false END AS granted");
         $su = config('entrust.entrust.name');
         foreach ($roles as $role) {
             if (array_get($role, 'name') == $su) {
@@ -181,7 +187,7 @@ class Permission extends EntrustPermission
             }
         }
         return $builder->select([
-            'permissions.*',
+            $table. '.*',
             $select
         ])->get()->toArray();
     }
