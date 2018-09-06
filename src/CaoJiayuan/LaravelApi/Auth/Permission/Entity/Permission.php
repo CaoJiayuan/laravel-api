@@ -63,7 +63,7 @@ class Permission extends EntrustPermission
         $children = $this->children();
         $prefix = \DB::getTablePrefix();
         $table = $this->getTable();
-        $su = Config::get('entrust.administrator', 'administrator');;
+        $su = Config::get('entrust.administrator_name', 'administrator');;
 
         $children->select([
             $table . '.*',
@@ -108,7 +108,7 @@ class Permission extends EntrustPermission
         $prefix = \DB::getTablePrefix();
         $table = (new static())->getTable();
         $permissionRoleTable = Config::get('entrust.permission_role_table', 'permission_role');;
-        $su = Config::get('entrust.administrator', 'administrator');;
+        $su = Config::get('entrust.administrator_name', 'administrator');;
         /** @var \Illuminate\Database\Eloquent\Builder $builder */
         $builder = static::where('parent_id', 0)->with(['node' => function ($builder) use($nodeResolver) {
             $nodeResolver && $nodeResolver($builder);
@@ -179,7 +179,7 @@ class Permission extends EntrustPermission
             $clause->whereIn($permissionRoleTable. '.role_id',  $ids);
         });
         $select = \DB::raw("CASE WHEN {$prefix}permission_role.{$permissionRoleTable} IS NOT NULL THEN true ELSE false END AS granted");
-        $su = config('entrust.entrust.name');
+        $su = Config::get('entrust.administrator_name','administrator');
         foreach ($roles as $role) {
             if (array_get($role, 'name') == $su) {
                 $select = \DB::raw("true AS granted");
