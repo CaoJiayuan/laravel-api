@@ -9,6 +9,7 @@
 namespace CaoJiayuan\LaravelApi\Html;
 
 
+use CaoJiayuan\LaravelApi\Content\Html;
 use DiDom\Document as BaseDocument;
 use DiDom\Query;
 
@@ -87,5 +88,11 @@ class Document extends BaseDocument
     public function getLinks($expression = 'a')
     {
         return $this->find($expression);
+    }
+
+    public function html()
+    {
+        $html = parent::html();
+        return new Html($html);
     }
 }
