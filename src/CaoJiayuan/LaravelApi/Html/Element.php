@@ -72,6 +72,19 @@ class Element extends BaseElement implements JsonSerializable, Arrayable
         return parent::setInnerHtml($html);
     }
 
+    public function attrGetChain($keys, $default = null)
+    {
+        $attrs = $this->attributes();
+
+        foreach(array_wrap($keys) as $key) {
+            if ($v = array_get($attrs, $key)) {
+                return $v;
+            }
+        }
+
+        return $default;
+    }
+
     /**
      * Specify data which should be serialized to JSON
      * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
