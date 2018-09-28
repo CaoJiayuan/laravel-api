@@ -31,15 +31,15 @@ class OssAuth
         $arr = ['expiration' => $expiration, 'conditions' => $conditions];
 
         $policy = json_encode($arr);
-        $base64_policy = base64_encode($policy);
-        $string_to_sign = $base64_policy;
-        $signature = base64_encode(hash_hmac('sha1', $string_to_sign, $key, true));
+        $base64Policy = base64_encode($policy);
+        $stringToSign = $base64Policy;
+        $signature = base64_encode(hash_hmac('sha1', $stringToSign, $key, true));
 
         $response = [];
         $response['accessid'] = $id;
         $response['OSSAccessKeyId'] = $id;
         $response['host'] = $host;
-        $response['policy'] = $base64_policy;
+        $response['policy'] = $base64Policy;
         $response['signature'] = $signature;
         $response['expire'] = $end;
         $response['dir'] = $dir;
