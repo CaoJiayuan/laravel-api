@@ -18,14 +18,14 @@ use Sts\Core\Regions\EndpointProvider;
 class StsAuth
 {
 
-    public static function auth($roleName, $regionId = "cn-hangzhou", $maxRetries = 3)
+    public static function auth($roleName, $regionId = "cn-hangzhou", $maxRetries = 3, $options = [])
     {
         $re = new AssumeRoleRequest();
-        $accessKeyID = config('aliyun_sts.key');
-        $accessKeySecret = config('aliyun_sts.secret');
-        $roleArn = config('aliyun_sts.role_arn');
-        $tokenExpire = config('aliyun_sts.expire_time');
-        $policy = config('aliyun_sts.policy');
+        $accessKeyID = array_get($options, 'key', config('aliyun_sts.key'));
+        $accessKeySecret = array_get($options, 'secret', config('aliyun_sts.secret'));
+        $roleArn = array_get($options, 'role_arn', config('aliyun_sts.role_arn'));
+        $tokenExpire = array_get($options, 'expire_time', config('aliyun_sts.expire_time'));
+        $policy = array_get($options, 'policy', config('aliyun_sts.policy'));
         $pf = DefaultProfile::getProfile($regionId, $accessKeyID, $accessKeySecret);
         $cli = new DefaultAcsClient($pf);
         $re->setRoleSessionName($roleName);
