@@ -20,12 +20,20 @@ class Documents extends Collection
     protected $loader;
     protected $loaded = false;
     protected $concurrency = 5;
+    protected $encodingFrom = null;
 
     public function __construct($items = [], $fromString = true)
     {
         $this->fromString = $fromString;
         $this->items = $this->getArrayableItems($items);
         $fromString || $this->loader = new GuzzleLoader($items);
+    }
+
+    public function encodingFrom($encoding)
+    {
+        $this->encodingFrom = $encoding;
+
+        return $this;
     }
 
     public function concurrency($concurrency)
@@ -74,13 +82,13 @@ class Documents extends Collection
     {
         if ($this->fromString) {
             $this->items = array_map(function ($item) use ($onLoad) {
-                $doc = new Document($item);
+                $doc = new Document($this->convertEncoding($item));
                 $onLoad && $onLoad($doc, $item);
                 return $doc;
             }, $this->items);
         } else {
             $this->items = $this->loader->loadAll(function ($body, $url) use ($onLoad) {
-                $doc = new Document($body);
+                $doc = new Document($this->convertEncoding($body));
                 $onLoad && $onLoad($doc, $url);
                 return $doc;
             }, null, $this->concurrency);
@@ -89,6 +97,15 @@ class Documents extends Collection
         $this->loaded = true;
 
         return $this;
+    }
+
+    protected function convertEncoding($content)
+    {
+        if ($this->encodingFrom) {
+            return mb_convert_encoding($content, 'utf-8', $this->encodingFrom);
+        }
+
+        return $content;
     }
 
     public static function loadFrom(array $urls)

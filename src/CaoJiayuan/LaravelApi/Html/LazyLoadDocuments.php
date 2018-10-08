@@ -19,7 +19,7 @@ use CaoJiayuan\LaravelApi\Ob\Value;
  */
 class LazyLoadDocuments extends ObjectOb
 {
-    protected $dontTrigger = ['config', 'onLoad', 'header', 'cache', 'load', 'proxyVia', 'userAgent'];
+    protected $dontTrigger = ['config', 'onLoad', 'header', 'cache', 'load', 'proxyVia', 'userAgent', 'encodingFrom'];
 
     protected $loaded = false;
     protected $documents = null;

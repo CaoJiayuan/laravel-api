@@ -24,7 +24,7 @@ class GuzzleLoader implements Loader
     protected $cacheExpire = 0;
     protected $cacheDriver = null;
 
-    protected $cachePrefix = 'guzzle_loader:';
+    protected $cachePrefix = 'guzzle_document_loader:';
 
     public function __construct($url, $options = [], $method = 'GET')
     {
