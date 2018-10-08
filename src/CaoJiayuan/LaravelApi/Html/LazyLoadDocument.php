@@ -45,6 +45,10 @@ class LazyLoadDocument extends ObjectOb
         parent::__construct($value);
     }
 
+    /**
+     * @param $encoding
+     * @return static
+     */
     public function encodingFrom($encoding)
     {
         $this->encodingFrom = $encoding;

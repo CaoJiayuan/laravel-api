@@ -106,4 +106,11 @@ class Element extends BaseElement implements JsonSerializable, Arrayable
     {
         return $this->attributes() ?: [];
     }
+
+    public function save($path)
+    {
+        file_put_contents($path, $this->html()->getOriginalContent());
+
+        return $this;
+    }
 }

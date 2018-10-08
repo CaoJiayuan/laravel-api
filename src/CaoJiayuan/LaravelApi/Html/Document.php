@@ -105,4 +105,11 @@ class Document extends BaseDocument
     {
         return $this->find($expression)->filter($cb);
     }
+
+    public function save($path)
+    {
+        file_put_contents($path, $this->html()->getOriginalContent());
+
+        return $this;
+    }
 }
