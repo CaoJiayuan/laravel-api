@@ -51,40 +51,7 @@ trait ExceptionRenderer
 
         $message = $exception->getMessage();
         if ($request->expectsJson()) {
-            $errors = [];
-            if ($exception instanceof ValidationException) {
-                $code = 422;
-                $errors = $exception->validator->getMessageBag();
-                $message = $errors->first();
-            }
-            $respondCode = $code;
-
-            if ($exception instanceof CustomHttpException){
-                $respondCode = $exception->getCustomCode();
-                $errors = $exception->getErrorData();
-                $message = $exception->getMessage();
-            }
-
-            $debug = env('APP_DEBUG');
-
-            if (!$debug && $code >= 500) {
-                $message = 'Server error';
-            }
-
-            $data = ['code' => $respondCode, 'errors' => $errors, 'message' => $message];
-
-
-            if ($debug && $code >= 500) {
-                $file = $exception->getFile();
-                $file = str_replace(base_path() . DIRECTORY_SEPARATOR, '', $file);
-                $line = $exception->getLine();
-                $data['exception'] = class_basename($exception);
-                $data['file'] = "$file. Line:[$line]";
-                $data['trace'] = $this->parseTrace($exception);
-            }
-
-
-            return response()->json($data, $code);
+            return $this->toJsonExceptionResponse($exception);
         }
         if ($code == 200) {
             return response($message);
@@ -167,5 +134,58 @@ trait ExceptionRenderer
         }
 
         return new HttpException(404, $message, $exception);
+    }
+
+    /**
+     * @param Exception $exception
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function toJsonExceptionResponse(Exception $exception)
+    {
+        $code = 500;
+        $errors = [];
+        if ($exception instanceof HttpExceptionInterface) {
+            $code = $exception->getStatusCode();
+        }
+
+        $message = $exception->getMessage();
+        if ($exception instanceof ValidationException) {
+            $code = 422;
+            $errors = $exception->validator->getMessageBag();
+            $message = $errors->first();
+        }
+        $respondCode = $code;
+
+        if ($exception instanceof CustomHttpException) {
+            $respondCode = $exception->getCustomCode();
+            $errors = $exception->getErrorData();
+            $message = $exception->getMessage();
+        }
+
+        $debug = env('APP_DEBUG');
+
+        if (!$debug && $code >= 500) {
+            $message = 'Server error';
+        }
+
+        $data = ['code' => $respondCode, 'errors' => $errors, 'message' => $message];
+
+
+        if ($debug && $code >= 500) {
+            $file = $exception->getFile();
+            $file = str_replace(base_path() . DIRECTORY_SEPARATOR, '', $file);
+            $line = $exception->getLine();
+            $data['exception'] = class_basename($exception);
+            $data['file'] = "$file. Line:[$line]";
+            $data['trace'] = $this->parseTrace($exception);
+        }
+
+
+        return response()->json($this->exceptionDataResolver($data, $code, $exception), $code);
+    }
+
+    protected function exceptionDataResolver($data, $code, $exception)
+    {
+        return $data;
     }
 }
