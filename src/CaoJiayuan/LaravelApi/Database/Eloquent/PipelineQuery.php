@@ -81,7 +81,7 @@ class PipelineQuery
     /**
      * @param callable $first
      * @param $pipes
-     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection|mixed|static[]
+     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection|mixed|Model[]
      */
     public function throughPipes($pipes, callable $first = null)
     {

@@ -9,6 +9,8 @@
 namespace CaoJiayuan\LaravelApi\Http\Repository;
 
 use CaoJiayuan\LaravelApi\Database\Eloquent\Helpers\Filterable;
+use CaoJiayuan\LaravelApi\Database\Eloquent\Helpers\UsingPipeline;
+use CaoJiayuan\LaravelApi\Database\Eloquent\PipelineQuery;
 use CaoJiayuan\LaravelApi\Pagination\PageHelper;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -77,12 +79,7 @@ class Repository
      */
     public function getSearchableBuilder($model, array $search = [], \Closure $closure = null, $order = '', $filter = '')
     {
-        if (!is_object($model)) {
-            $model = app($model);
-        }
-        if (!$model instanceof Model) {
-            throw new \UnexpectedValueException(__METHOD__ . ' expects parameter 1 to be an object of ' . Model::class . ',' . get_class($model) . ' given');
-        }
+        $model = $this->getModelInstance($model);
         $builder = $model->newQuery();
         $table = $model->getTable();
         $this->resolveSort($model, $order, $builder, $closure);
@@ -101,5 +98,29 @@ class Repository
             });
         }
         return $builder;
+    }
+
+    public function pipeline($model, $pipeline, callable $first = null)
+    {
+        $instance = $this->getModelInstance($model);
+        $p = new PipelineQuery($instance);
+
+        return $p->query($pipeline, $first);
+    }
+
+    /**
+     * @param $model
+     * @return Model
+     * @throws \UnexpectedValueException
+     */
+    protected function getModelInstance($model)
+    {
+        if (!is_object($model)) {
+            $model = app($model);
+        }
+        if (!$model instanceof Model) {
+            throw new \UnexpectedValueException(__METHOD__ . ' expects parameter 1 to be an object of ' . Model::class . ',' . get_class($model) . ' given');
+        }
+        return $model;
     }
 }
