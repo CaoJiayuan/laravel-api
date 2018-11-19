@@ -51,6 +51,7 @@ class ResponseWrapper
         $headers = $response->headers;
 
         if (is_array($origin) || $origin instanceof Arrayable) {
+            JsonResource::$wrap = $this->wrapper;
             return (new JsonResource($origin))->additional($additional)
                 ->toResponse($request)
                 ->setStatusCode($status)
