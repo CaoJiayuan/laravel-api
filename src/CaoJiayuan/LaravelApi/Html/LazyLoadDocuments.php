@@ -52,12 +52,15 @@ class LazyLoadDocuments extends ObjectOb
      */
     protected function _reading_($value, $param)
     {
+        $this->chainCall = false;
+
         if ($this->loaded) {
             return $value;
         }
         if (in_array($param[0], $this->dontTrigger)) {
             $this->loaded = false;
-            return $value;
+            $this->chainCall = true;
+            return $this;
         }
         $value->load();
         $this->loaded = true;

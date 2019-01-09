@@ -79,10 +79,15 @@ class Repository
      */
     public function getSearchableBuilder($model, array $search = [], \Closure $closure = null, $order = '', $filter = '')
     {
-        $model = $this->getModelInstance($model);
-        $builder = $model->newQuery();
-        $table = $model->getTable();
-        $this->resolveSort($model, $order, $builder, $closure);
+        $modelInstance = $this->getModelInstance($model);
+        if ($model instanceof Builder) {
+            $builder = $model;
+        } else {
+            $builder = $modelInstance->newQuery();
+        }
+
+        $table = $modelInstance->getTable();
+        $this->resolveSort($modelInstance, $order, $builder, $closure);
         if ($filter && $search) {
             $builder->where(function ($builder) use ($search, $filter, $table) {
                 foreach ((array)$search as $column) {
@@ -118,6 +123,11 @@ class Repository
         if (!is_object($model)) {
             $model = app($model);
         }
+
+        if ($model instanceof Builder) {
+            return $model->getModel();
+        }
+
         if (!$model instanceof Model) {
             throw new \UnexpectedValueException(__METHOD__ . ' expects parameter 1 to be an object of ' . Model::class . ',' . get_class($model) . ' given');
         }

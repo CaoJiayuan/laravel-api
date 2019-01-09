@@ -21,6 +21,7 @@ abstract class ObjectOb extends Ob
         $obj = $this->_value_()->getVal([$name, false]);
 
         if (method_exists($obj, $name)) {
+
             $result = call_user_func_array([$obj, $name], $arguments);
 
             if ($this->chainCall) {

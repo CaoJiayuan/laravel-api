@@ -14,7 +14,6 @@ use CaoJiayuan\LaravelApi\Content\Text;
 use DiDom\Element as BaseElement;
 use DiDom\Query;
 use Illuminate\Contracts\Support\Arrayable;
-use JsonSerializable;
 
 /**
  * Class Element
@@ -22,7 +21,7 @@ use JsonSerializable;
  * @method Element first($expression, $type = Query::TYPE_CSS, $wrapNode = true)
  * @method Element[]|NodeList find($expression, $type = Query::TYPE_CSS, $wrapNode = true)
  */
-class Element extends BaseElement implements JsonSerializable, Arrayable
+class Element extends BaseElement implements Arrayable
 {
 
     public static function create($name, $value = null, array $attributes = [])
@@ -76,7 +75,7 @@ class Element extends BaseElement implements JsonSerializable, Arrayable
     {
         $attrs = $this->attributes();
 
-        foreach(array_wrap($keys) as $key) {
+        foreach (array_wrap($keys) as $key) {
             if ($v = array_get($attrs, $key)) {
                 return $v;
             }
@@ -104,7 +103,37 @@ class Element extends BaseElement implements JsonSerializable, Arrayable
      */
     public function toArray()
     {
-        return $this->attributes() ?: [];
+        if ($this->isTextNode()) {
+            return [
+                'el'      => '$text',
+                'attrs'   => [],
+                'nodes'   => [],
+                'content' => $this->text()
+            ];
+        }
+
+        return [
+            'el'      => $this->tag,
+            'attrs'   => $this->attributes() ?: [],
+            'nodes'   => array_map(function (Element $element) {
+                return $element->toArray();
+            }, $this->children()),
+            'content' => $this->text()
+        ];
+    }
+
+    public function children()
+    {
+        $children = [];
+
+        foreach ($this->node->childNodes as $node) {
+            if ($node instanceof \DOMCdataSection) {
+                continue;
+            }
+            $children[] = new static($node);
+        }
+
+        return $children;
     }
 
     public function save($path)
