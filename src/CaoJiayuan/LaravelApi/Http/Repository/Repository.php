@@ -35,7 +35,7 @@ class Repository
 
         $pager = $this->applyPaginate($builder, $pageSize);
         if ($trans) {
-            $trans($pager->getCollection());
+            $pager->setCollection($trans($pager->getCollection()));
         }
 
         return $pager;
