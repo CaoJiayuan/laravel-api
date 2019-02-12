@@ -9,6 +9,8 @@
 namespace CaoJiayuan\LaravelApi\Http\Repository;
 
 use CaoJiayuan\LaravelApi\Database\Eloquent\Helpers\Filterable;
+use CaoJiayuan\LaravelApi\Database\Eloquent\Helpers\UsingPipeline;
+use CaoJiayuan\LaravelApi\Database\Eloquent\PipelineQuery;
 use CaoJiayuan\LaravelApi\Pagination\PageHelper;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -33,7 +35,7 @@ class Repository
 
         $pager = $this->applyPaginate($builder, $pageSize);
         if ($trans) {
-            $trans($pager->getCollection());
+            $pager->setCollection($trans($pager->getCollection()));
         }
 
         return $pager;
@@ -77,15 +79,15 @@ class Repository
      */
     public function getSearchableBuilder($model, array $search = [], \Closure $closure = null, $order = '', $filter = '')
     {
-        if (!is_object($model)) {
-            $model = app($model);
+        $modelInstance = $this->getModelInstance($model);
+        if ($model instanceof Builder) {
+            $builder = $model;
+        } else {
+            $builder = $modelInstance->newQuery();
         }
-        if (!$model instanceof Model) {
-            throw new \UnexpectedValueException(__METHOD__ . ' expects parameter 1 to be an object of ' . Model::class . ',' . get_class($model) . ' given');
-        }
-        $builder = $model->newQuery();
-        $table = $model->getTable();
-        $this->resolveSort($model, $order, $builder, $closure);
+
+        $table = $modelInstance->getTable();
+        $this->resolveSort($modelInstance, $order, $builder, $closure);
         if ($filter && $search) {
             $builder->where(function ($builder) use ($search, $filter, $table) {
                 foreach ((array)$search as $column) {
@@ -101,5 +103,34 @@ class Repository
             });
         }
         return $builder;
+    }
+
+    public function pipeline($model, $pipeline, callable $first = null)
+    {
+        $instance = $this->getModelInstance($model);
+        $p = new PipelineQuery($instance);
+
+        return $p->query($pipeline, $first);
+    }
+
+    /**
+     * @param $model
+     * @return Model
+     * @throws \UnexpectedValueException
+     */
+    protected function getModelInstance($model)
+    {
+        if (!is_object($model)) {
+            $model = app($model);
+        }
+
+        if ($model instanceof Builder) {
+            return $model->getModel();
+        }
+
+        if (!$model instanceof Model) {
+            throw new \UnexpectedValueException(__METHOD__ . ' expects parameter 1 to be an object of ' . Model::class . ',' . get_class($model) . ' given');
+        }
+        return $model;
     }
 }

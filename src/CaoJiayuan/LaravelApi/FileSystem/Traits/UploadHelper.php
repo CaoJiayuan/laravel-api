@@ -27,7 +27,7 @@ trait UploadHelper
             return $result;
         }
         $file = $request->file($fileKey);
-        $filename = $file->hashName();
+        $filename = str_random(40) . '.' . $file->getClientOriginalExtension();
         $p = $file->storePubliclyAs($path, $this->uploadFilePrefix . $filename, [
             'disk' => $this->getUploadDisk()
         ]);

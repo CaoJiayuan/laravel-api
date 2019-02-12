@@ -19,7 +19,7 @@ use CaoJiayuan\LaravelApi\Ob\Value;
  */
 class LazyLoadDocuments extends ObjectOb
 {
-    protected $dontTrigger = ['config', 'onLoad', 'header', 'cache', 'load', 'proxyVia', 'userAgent'];
+    protected $dontTrigger = ['config', 'onLoad', 'header', 'cache', 'load', 'proxyVia', 'userAgent', 'encodingFrom'];
 
     protected $loaded = false;
     protected $documents = null;
@@ -52,12 +52,15 @@ class LazyLoadDocuments extends ObjectOb
      */
     protected function _reading_($value, $param)
     {
+        $this->chainCall = false;
+
         if ($this->loaded) {
             return $value;
         }
         if (in_array($param[0], $this->dontTrigger)) {
             $this->loaded = false;
-            return $value;
+            $this->chainCall = true;
+            return $this;
         }
         $value->load();
         $this->loaded = true;

@@ -95,4 +95,21 @@ class Document extends BaseDocument
         $html = parent::html();
         return new Html($html);
     }
+
+    /**
+     * @param $expression
+     * @param \Closure $cb
+     * @return NodeList
+     */
+    public function filter($expression, \Closure $cb)
+    {
+        return $this->find($expression)->filter($cb);
+    }
+
+    public function save($path)
+    {
+        file_put_contents($path, $this->html()->getOriginalContent());
+
+        return $this;
+    }
 }

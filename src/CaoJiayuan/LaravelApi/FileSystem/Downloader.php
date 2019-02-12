@@ -37,9 +37,9 @@ class Downloader
         list($dir, $name) = $this->parseDownloadPath($path);
         $this->makeDir($dir);
 
-        $client->request('GET', $this->url, [
-           RequestOptions::SINK => $dir . DIRECTORY_SEPARATOR . $name
-        ]);
+        $client->request('GET', $this->url, array_merge($this->requestOptions, [
+            RequestOptions::SINK => $dir . DIRECTORY_SEPARATOR . $name
+        ]));
 
         return $path;
     }
