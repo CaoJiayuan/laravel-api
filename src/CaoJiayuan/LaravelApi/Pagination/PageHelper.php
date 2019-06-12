@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\AbstractPaginator;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Request;
 
 trait PageHelper
@@ -30,7 +31,7 @@ trait PageHelper
     {
         $url =  app('url')->current();
         $query = Request::query();
-        $query = http_build_query(array_except($query, $pageName));
+        $query = http_build_query(Arr::except($query, $pageName));
         $query && $query = '?' . $query;
         $path = $url . $query;
         return $builder->paginate($perPage, $columns, $pageName, $page)->setPath($path);
@@ -75,7 +76,7 @@ trait PageHelper
         $url = app('url')->current();
 
         $query = Request::query();
-        $query = http_build_query(array_except($query, $pageName));
+        $query = http_build_query(Arr::except($query, $pageName));
         $query && $query = '?' . $query;
         $path = $url . $query;
         return new LengthAwarePaginator($items, count($array), $perPage, $page, [

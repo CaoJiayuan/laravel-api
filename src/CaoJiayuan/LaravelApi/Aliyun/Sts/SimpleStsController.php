@@ -11,18 +11,19 @@ namespace CaoJiayuan\LaravelApi\Aliyun\Sts;
 
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 
 class SimpleStsController extends Controller
 {
     public function auth()
     {
         $data = StsAuth::auth('role-'.str_random(5));
-        $raw = array_get($data, 'Credentials');
-        $expire = new Carbon(array_get($raw, 'Expiration')) ?: Carbon::now();
+        $raw = Arr::get($data, 'Credentials');
+        $expire = new Carbon(Arr::get($raw, 'Expiration')) ?: Carbon::now();
         $cre = [
-            'accessKeyId'     => array_get($raw, 'AccessKeyId'),
-            'accessKeySecret' => array_get($raw, 'AccessKeySecret'),
-            'stsToken'        => array_get($raw, 'SecurityToken'),
+            'accessKeyId'     => Arr::get($raw, 'AccessKeyId'),
+            'accessKeySecret' => Arr::get($raw, 'AccessKeySecret'),
+            'stsToken'        => Arr::get($raw, 'SecurityToken'),
             'expire_at'       => $expire->timestamp,
             'expire_date'     => $expire->toDateTimeString(),
             'endpoint'        => env('OSS_ENDPOINT'),

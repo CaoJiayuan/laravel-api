@@ -10,6 +10,7 @@ namespace CaoJiayuan\LaravelApi\Auth\Permission\Entity;
 
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
 use Zizaco\Entrust\EntrustPermission;
 
@@ -181,7 +182,7 @@ class Permission extends EntrustPermission
         $select = \DB::raw("CASE WHEN {$prefix}permission_role.{$permissionRoleTable} IS NOT NULL THEN true ELSE false END AS granted");
         $su = Config::get('entrust.administrator_name','administrator');
         foreach ($roles as $role) {
-            if (array_get($role, 'name') == $su) {
+            if (Arr::get($role, 'name') == $su) {
                 $select = \DB::raw("true AS granted");
                 break;
             }

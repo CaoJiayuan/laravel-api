@@ -7,6 +7,7 @@
 
 namespace CaoJiayuan\LaravelApi\Database\Eloquent;
 
+use Illuminate\Support\Arr;
 
 class KeyValue extends BaseEntity
 {
@@ -23,14 +24,14 @@ class KeyValue extends BaseEntity
             $result = [];
             foreach ($key as $k => $def) {
                 if (is_numeric($k)) {
-                    $result[$def] = array_get(static::$items, $def);
+                    $result[$def] = Arr::get(static::$items, $def);
                 } else {
-                    $result[$k] = array_get(static::$items, $k, $def);
+                    $result[$k] = Arr::get(static::$items, $k, $def);
                 }
             }
             return $result;
         }
-        return array_get(static::$items, $key, $default);
+        return Arr::get(static::$items, $key, $default);
     }
 
     public static function getConvertedData()

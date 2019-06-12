@@ -24,7 +24,7 @@ use Workerman\Connection\TcpConnection;
 use Workerman\Lib\Timer;
 use Workerman\Protocols\Http;
 use Workerman\Worker;
-
+use Illuminate\Support\Arr;
 
 class ServerCommand extends Command
 {
@@ -174,7 +174,7 @@ class ServerCommand extends Command
         $this->fixUploadFiles();
         $content = null;
         $post = $_POST;
-        if (str_contains(array_get($_SERVER, 'HTTP_CONTENT_TYPE'), ['/json', '+json'])) {
+        if (str_contains(Arr::get($_SERVER, 'HTTP_CONTENT_TYPE'), ['/json', '+json'])) {
             if (strtoupper($_SERVER['REQUEST_METHOD']) == 'POST') {
                 $content = json_encode($post);
             } else {
@@ -260,11 +260,11 @@ class ServerCommand extends Command
         $_FILES = [];
 
         foreach ((array)$files as $file) {
-            $data = array_get($file, 'file_data');
+            $data = Arr::get($file, 'file_data');
             if ($data) {
                 $tmpFile = $this->tmpPath . DIRECTORY_SEPARATOR . 'php' . str_random();
                 $fp = fopen($tmpFile, 'w+');
-                $size = array_get($file, 'file_size');
+                $size = Arr::get($file, 'file_size');
                 $remain = $size;
                 $i = 0;
                 $chunk = 1024;
@@ -278,11 +278,11 @@ class ServerCommand extends Command
                     $i += $chunk;
                 } while ($remain > 0);
                 fclose($fp);
-                $key = array_get($file, 'name');
+                $key = Arr::get($file, 'name');
 
-                $fileName = array_get($file, 'file_name');
-                $mimeType = array_get($file, 'file_type');
-                $error = array_get($file, 'error', UPLOAD_ERR_OK);
+                $fileName = Arr::get($file, 'file_name');
+                $mimeType = Arr::get($file, 'file_type');
+                $error = Arr::get($file, 'error', UPLOAD_ERR_OK);
                 $uploadedFile = new UploadedFile($tmpFile, $fileName, $mimeType, $size, $error);
                 $_FILES[$key] = $uploadedFile;
             }

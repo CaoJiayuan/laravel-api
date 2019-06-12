@@ -14,6 +14,7 @@ use Sts\Core\DefaultAcsClient;
 use Sts\Core\Http\HttpHelper;
 use Sts\Core\Profile\DefaultProfile;
 use Sts\Core\Regions\EndpointProvider;
+use Illuminate\Support\Arr;
 
 class StsAuth
 {
@@ -21,11 +22,11 @@ class StsAuth
     public static function auth($roleName, $regionId = "cn-hangzhou", $maxRetries = 3, $options = [])
     {
         $re = new AssumeRoleRequest();
-        $accessKeyID = array_get($options, 'key', config('aliyun_sts.key'));
-        $accessKeySecret = array_get($options, 'secret', config('aliyun_sts.secret'));
-        $roleArn = array_get($options, 'role_arn', config('aliyun_sts.role_arn'));
-        $tokenExpire = array_get($options, 'expire_time', config('aliyun_sts.expire_time'));
-        $policy = array_get($options, 'policy', config('aliyun_sts.policy'));
+        $accessKeyID = Arr::get($options, 'key', config('aliyun_sts.key'));
+        $accessKeySecret = Arr::get($options, 'secret', config('aliyun_sts.secret'));
+        $roleArn = Arr::get($options, 'role_arn', config('aliyun_sts.role_arn'));
+        $tokenExpire = Arr::get($options, 'expire_time', config('aliyun_sts.expire_time'));
+        $policy = Arr::get($options, 'policy', config('aliyun_sts.policy'));
         $pf = DefaultProfile::getProfile($regionId, $accessKeyID, $accessKeySecret);
         $cli = new DefaultAcsClient($pf);
         $re->setRoleSessionName($roleName);
@@ -46,7 +47,7 @@ class StsAuth
 
         $status = $response->getStatus();
         if ($status != 200) {
-            throw new StsAuthException($result, $status, array_get($result, 'Message'));
+            throw new StsAuthException($result, $status, Arr::get($result, 'Message'));
         }
 
         return $result;

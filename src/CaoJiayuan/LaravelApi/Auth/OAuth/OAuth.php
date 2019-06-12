@@ -9,6 +9,7 @@ namespace CaoJiayuan\LaravelApi\Auth\OAuth;
 
 
 use GuzzleHttp\Client;
+use Illuminate\Support\Arr;
 use GuzzleHttp\RequestOptions;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -85,8 +86,8 @@ class OAuth
         if ($type == 'qq' && is_string($body)) {
             $body = \GuzzleHttp\Psr7\parse_query($body);
         }
-        $token = array_get($body, 'access_token');
-        $openid = array_get($body, 'openid');
+        $token = Arr::get($body, 'access_token');
+        $openid = Arr::get($body, 'openid');
 
         if (!$token) {
             throw new HttpException(401, '获取登陆信息失败');
@@ -170,7 +171,7 @@ class OAuth
         } else {
             $body = static::get($url, 'query', $data);
         }
-        $openid = array_get($body, 'openid') ?: array_get($body, 'uid');
+        $openid = Arr::get($body, 'openid') ?: Arr::get($body, 'uid');
         return $openid;
     }
 
@@ -225,8 +226,8 @@ class OAuth
         $data = self::requestUserInfo('qq', $openId, $token);
 
         return [
-            'nickname' => array_get($data, 'nickname'),
-            'avatar'   => array_get($data, 'figureurl_qq_1'),
+            'nickname' => Arr::get($data, 'nickname'),
+            'avatar'   => Arr::get($data, 'figureurl_qq_1'),
             'info'     => $data
         ];
     }
@@ -250,8 +251,8 @@ class OAuth
     {
         $data = self::requestUserInfo('weibo', $uid, $token);
         return [
-            'nickname' => array_get($data, 'screen_name'),
-            'avatar'   => array_get($data, 'profile_image_url'),
+            'nickname' => Arr::get($data, 'screen_name'),
+            'avatar'   => Arr::get($data, 'profile_image_url'),
             'info'     => $data
         ];
     }
@@ -260,8 +261,8 @@ class OAuth
     {
         $data = self::requestUserInfo('weixin', $openId, $token);
         return [
-            'nickname' => array_get($data, 'nickname'),
-            'avatar'   => array_get($data, 'headimgurl'),
+            'nickname' => Arr::get($data, 'nickname'),
+            'avatar'   => Arr::get($data, 'headimgurl'),
             'info'     => $data
         ];
     }

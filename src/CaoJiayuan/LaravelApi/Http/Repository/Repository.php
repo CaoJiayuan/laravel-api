@@ -9,11 +9,11 @@
 namespace CaoJiayuan\LaravelApi\Http\Repository;
 
 use CaoJiayuan\LaravelApi\Database\Eloquent\Helpers\Filterable;
-use CaoJiayuan\LaravelApi\Database\Eloquent\Helpers\UsingPipeline;
 use CaoJiayuan\LaravelApi\Database\Eloquent\PipelineQuery;
 use CaoJiayuan\LaravelApi\Pagination\PageHelper;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Request;
 
 class Repository
@@ -22,13 +22,17 @@ class Repository
 
     public function getSearchAbleData($model, array $search = [], \Closure $closure = null, \Closure $trans = null)
     {
+        $filterKey = $this->getFilterKey();
+        $sortKey = $this->getSortKey();
+        $pageSizeKey = $this->getPageSizeKey();
         $data = Request::only([
-            'filter', 'sort', 'per_page'
+            $filterKey, $sortKey, $pageSizeKey
         ]);
+
         $data = array_merge([
-            'filter'   => '',
-            'sort'     => '',
-            'per_page' => 15
+            $filterKey   => '',
+            $sortKey     => '',
+            $pageSizeKey => 15
         ], $data);
         list($filter, $order, $pageSize) = array_values($data);
         $builder = $this->getSearchableBuilder($model, $search, $closure, $order, $filter);
@@ -41,32 +45,20 @@ class Repository
         return $pager;
     }
 
-    /**
-     * @param Model $model
-     * @param \Closure $closure
-     * @param $order
-     * @param Builder $builder
-     * @return mixed
-     */
-    public function resolveSort($model, $order, $builder, \Closure $closure = null)
+    protected function getFilterKey()
     {
-        $orderArr = explode('|', $order, 2);
-        $table = $model->getTable();
-        $key = $model->getKeyName();
-        $by = array_get($orderArr, 0);
-        $direction = array_get($orderArr, 1);
-        list($o, $d) = [$by ?: $table . '.' . $key, $direction ?: 'desc'];
-        if ($closure) {
-            $closure($builder);
-        }
-        if ($by) {
-            $builder->getQuery()->orders = [];
-            $builder->orderBy($o, $d);
-        } else if (!$builder->getQuery()->orders) {
-            $builder->orderBy($o, $d);
-        }
+        return 'filter';
+    }
 
-        return $builder;
+
+    protected function getSortKey()
+    {
+        return 'sort';
+    }
+
+    protected function getPageSizeKey()
+    {
+        return 'per_page';
     }
 
     /**
@@ -105,14 +97,6 @@ class Repository
         return $builder;
     }
 
-    public function pipeline($model, $pipeline, callable $first = null)
-    {
-        $instance = $this->getModelInstance($model);
-        $p = new PipelineQuery($instance);
-
-        return $p->query($pipeline, $first);
-    }
-
     /**
      * @param $model
      * @return Model
@@ -132,5 +116,41 @@ class Repository
             throw new \UnexpectedValueException(__METHOD__ . ' expects parameter 1 to be an object of ' . Model::class . ',' . get_class($model) . ' given');
         }
         return $model;
+    }
+
+    /**
+     * @param Model $model
+     * @param \Closure $closure
+     * @param $order
+     * @param Builder $builder
+     * @return mixed
+     */
+    public function resolveSort($model, $order, $builder, \Closure $closure = null)
+    {
+        $orderArr = explode('|', $order, 2);
+        $table = $model->getTable();
+        $key = $model->getKeyName();
+        $by = Arr::get($orderArr, 0);
+        $direction = Arr::get($orderArr, 1);
+        list($o, $d) = [$by ?: $table . '.' . $key, $direction ?: 'desc'];
+        if ($closure) {
+            $closure($builder);
+        }
+        if ($by) {
+            $builder->getQuery()->orders = [];
+            $builder->orderBy($o, $d);
+        } else if (!$builder->getQuery()->orders) {
+            $builder->orderBy($o, $d);
+        }
+
+        return $builder;
+    }
+
+    public function pipeline($model, $pipeline, callable $first = null)
+    {
+        $instance = $this->getModelInstance($model);
+        $p = new PipelineQuery($instance);
+
+        return $p->query($pipeline, $first);
     }
 }

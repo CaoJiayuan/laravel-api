@@ -15,6 +15,7 @@ use CaoJiayuan\LaravelApi\Areas\Entity\Province;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class MigrateAreaCommand extends Command
@@ -54,7 +55,7 @@ class MigrateAreaCommand extends Command
                         $this->info("    >> City [{$cityName}]");
                         $city = City::create(['province_id' => $p['id'], 'name' => $cityName]);
 
-                        foreach (array_get($c, 'area', []) as $area) {
+                        foreach (Arr::get($c, 'area', []) as $area) {
                             $this->info("       >> Area [{$area}]");
                             Area::create([
                                 'city_id' => $city->id,

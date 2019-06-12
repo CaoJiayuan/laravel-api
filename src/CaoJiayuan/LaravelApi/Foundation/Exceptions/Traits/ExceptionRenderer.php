@@ -17,6 +17,7 @@ use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Illuminate\Support\Arr;
 
 trait ExceptionRenderer
 {
@@ -70,15 +71,15 @@ trait ExceptionRenderer
         $trace = [];
 
         foreach ($t as $i => $item) {
-            $file = array_get($item, 'file', '[internal function]');
+            $file = Arr::get($item, 'file', '[internal function]');
             $file = str_replace(base_path() . DIRECTORY_SEPARATOR, '', $file);
-            $line = array_get($item, 'line');
+            $line = Arr::get($item, 'line');
 
-            $class = array_get($item, 'class');
-            $func = array_get($item, 'function');
-            $type = array_get($item, 'type');
+            $class = Arr::get($item, 'class');
+            $func = Arr::get($item, 'function');
+            $type = Arr::get($item, 'type');
             $line = $line ? '(' . $line . ')' : '';
-            $args = array_get($item, 'args', []);
+            $args = Arr::get($item, 'args', []);
 
             $ar = '';
             foreach ($args as $arg) {

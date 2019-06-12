@@ -13,6 +13,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Cache\CacheManager;
+use Illuminate\Support\Arr;
 
 class GuzzleLoader implements Loader
 {
@@ -97,6 +98,10 @@ class GuzzleLoader implements Loader
         return $this->guzzle;
     }
 
+    /**
+     * @return mixed|\Psr\Http\Message\StreamInterface
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function load()
     {
         if ($this->cacheExpire > 0) {
@@ -128,7 +133,7 @@ class GuzzleLoader implements Loader
     public function loadAll(\Closure $fulfilled, \Closure $rejected = null, $concurrency = 5)
     {
         $results = [];
-        $urls = array_wrap($this->url);
+        $urls = Arr::wrap($this->url);
 
         $uncached = [];
         if ($this->cacheExpire > 0) {
@@ -220,6 +225,7 @@ class GuzzleLoader implements Loader
 
     /**
      * @return \Psr\Http\Message\StreamInterface
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     protected function request()
     {

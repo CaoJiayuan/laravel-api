@@ -13,6 +13,7 @@ use ArrayAccess;
 use CaoJiayuan\LaravelApi\Data\Exceptions\InvalidDataException;
 use Carbon\Carbon;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Support\Arr;
 
 class Transfer implements ArrayAccess, Arrayable
 {
@@ -61,7 +62,7 @@ class Transfer implements ArrayAccess, Arrayable
 
         return array_map(function ($item) use ($template) {
             return (new static())->setData($item)->transform($template);
-        }, array_wrap($this->data));
+        }, Arr::wrap($this->data));
     }
 
     public function formatInt($v)
@@ -104,9 +105,9 @@ class Transfer implements ArrayAccess, Arrayable
         $result = [];
         foreach ($template as $from => $to) {
             if (is_numeric($from)) {
-                array_set($result, $to, data_get($this->data, $to));
+                Arr::set($result, $to, data_get($this->data, $to));
             } else {
-                $v = array_get($this->data, $from);
+                $v = Arr::get($this->data, $from);
                 if (is_array($to)) {
                     $k = array_shift($to);
                     $formats = $to;
@@ -120,10 +121,10 @@ class Transfer implements ArrayAccess, Arrayable
                 }
                 if (is_array($k)) {
                     foreach ($k as $i) {
-                        array_set($result, $i, $this->callFormats($formats, $v));
+                        Arr::set($result, $i, $this->callFormats($formats, $v));
                     }
                 } else {
-                    array_set($result, $k, $this->callFormats($formats, $v));
+                    Arr::set($result, $k, $this->callFormats($formats, $v));
                 }
             }
         }

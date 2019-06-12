@@ -10,6 +10,7 @@ namespace CaoJiayuan\LaravelApi\Database\Eloquent\Helpers;
 
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 
 trait Filterable
 {
@@ -56,6 +57,6 @@ trait Filterable
         $partials = explode(',', $key);
 
 
-        return [array_get($partials, 0), array_get($partials, 1, 'like')];
+        return [Arr::get($partials, 0), Arr::get($partials, 1, 'like')];
     }
 }

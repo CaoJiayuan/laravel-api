@@ -14,6 +14,7 @@ use CaoJiayuan\LaravelApi\Content\Text;
 use DiDom\Element as BaseElement;
 use DiDom\Query;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Support\Arr;
 
 /**
  * Class Element
@@ -75,8 +76,8 @@ class Element extends BaseElement implements Arrayable
     {
         $attrs = $this->attributes();
 
-        foreach (array_wrap($keys) as $key) {
-            if ($v = array_get($attrs, $key)) {
+        foreach (Arr::wrap($keys) as $key) {
+            if ($v = Arr::get($attrs, $key)) {
                 return $v;
             }
         }

@@ -6,6 +6,7 @@ use CaoJiayuan\LaravelApi\Html\Documents;
 use CaoJiayuan\LaravelApi\Html\LazyLoadDocument;
 use CaoJiayuan\LaravelApi\Html\LazyLoadDocuments;
 use CaoJiayuan\LaravelApi\Promise\Promise;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Debug\HtmlDumper;
 use Symfony\Component\VarDumper\Cloner\VarCloner;
 
@@ -93,7 +94,7 @@ if (!function_exists('array_find')) {
     function array_find($array, $findChain, $default = null)
     {
         if (!is_array($findChain)) {
-            return array_get($array, $findChain, $default);
+            return Arr::get($array, $findChain, $default);
         }
         foreach ($findChain as $key) {
             if (array_key_exists($key, $array)) {
