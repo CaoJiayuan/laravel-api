@@ -8,7 +8,24 @@ use Illuminate\Support\Str;
 
 class CarbonHelper
 {
-    const RANGE_MINUTE = 'minute';
+    const RANGE_DAY = 'day';
+    const RANGE_WEEK = 'week';
+    const RANGE_MONTH = 'month';
+    const RANGE_QUARTER = 'quarter';
+    const RANGE_YEAR = 'year';
+    const RANGE_DECADE = 'decade';
+
+    const STEP_DECADE = 'decade';
+    const STEP_YEAR = 'year';
+    const STEP_MONTH = 'month';
+    const STEP_QUARTER = 'quarter';
+    const STEP_WEEK = 'week';
+    const STEP_DAY = 'day';
+    const STEP_HOUR = 'hour';
+    const STEP_MINUTE = 'minute';
+    const STEP_SECOND = 'second';
+
+
 
     protected static $carbonNow = null;
 
@@ -77,7 +94,7 @@ class CarbonHelper
         return static::getTimeRange('year', $timestamp);
     }
 
-    public static function getRangeTimes($range = 'year', $step = 'month', $untilNow = false, $collect = false)
+    public static function getRangeTimes($range = self::RANGE_YEAR, $step = self::STEP_MONTH, $untilNow = false, $collect = false)
     {
         if (is_numeric($range)) {
             $now = static::getCarbonNow();
@@ -136,8 +153,6 @@ class CarbonHelper
             'year',
             'quarter',
             'week',
-            'minute',
-            'hour',
             'decade'
         ]);
     }
