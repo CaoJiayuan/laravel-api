@@ -32,7 +32,7 @@ class Repository
         $data = array_merge([
             $filterKey   => '',
             $sortKey     => '',
-            $pageSizeKey => 15
+            $pageSizeKey => $this->getDefaultPageSize()
         ], $data);
         list($filter, $order, $pageSize) = array_values($data);
         $builder = $this->getSearchableBuilder($model, $search, $closure, $order, $filter);
@@ -43,6 +43,11 @@ class Repository
         }
 
         return $pager;
+    }
+
+    protected function getDefaultPageSize()
+    {
+        return 15;
     }
 
     protected function getFilterKey()
