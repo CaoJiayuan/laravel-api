@@ -14,9 +14,18 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 trait ResponseHelper
 {
-    public function respondMessage($status, $message)
+    public function respondSuccess($message = 'Success', $data = [])
     {
-        throw new HttpException($status, $message);
+        $this->respondMessageWithData(200, $message, $data);
+    }
+
+    public function respondMessageWithData($status, $message, $data = [])
+    {
+        if (!empty($data)) {
+            $this->respondCustomMessage($status, $message, $status, $data);
+        } else {
+            $this->respondMessage($status, $message);
+        }
     }
 
     public function respondCustomMessage($code, $message, $statusCode = 200, $data = [])
@@ -24,28 +33,28 @@ trait ResponseHelper
         throw new CustomHttpException($code, $message, $data, $statusCode);
     }
 
-    public function respondSuccess($message = 'Success')
+    public function respondMessage($status, $message)
     {
-        $this->respondMessage(200, $message);
+        throw new HttpException($status, $message);
     }
 
-    public function respond404($message)
+    public function respond404($message, $data = [])
     {
-        $this->respondMessage(404, $message);
+        $this->respondMessageWithData(404, $message, $data);
     }
 
-    public function respond403($message)
+    public function respond403($message, $data = [])
     {
-        $this->respondMessage(403, $message);
+        $this->respondMessageWithData(403, $message, $data);
     }
 
-    public function respond422($message)
+    public function respond422($message, $data = [])
     {
-        $this->respondMessage(422, $message);
+        $this->respondMessageWithData(422, $message, $data);
     }
 
-    public function respond401($message)
+    public function respond401($message, $data = [])
     {
-        $this->respondMessage(401, $message);
+        $this->respondMessageWithData(401, $message, $data);
     }
 }
