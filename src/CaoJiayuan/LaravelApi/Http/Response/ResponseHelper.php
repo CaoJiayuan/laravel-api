@@ -14,6 +14,12 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 trait ResponseHelper
 {
+
+    public function respondSuccessData($data = [], $message = 'Success')
+    {
+        $this->respondMessageWithData(200, $message, $data);
+    }
+
     public function respondSuccess($message = 'Success', $data = [])
     {
         $this->respondMessageWithData(200, $message, $data);

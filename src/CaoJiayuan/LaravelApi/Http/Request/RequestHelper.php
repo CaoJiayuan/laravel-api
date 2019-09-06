@@ -7,6 +7,11 @@ use Illuminate\Http\Request;
 trait RequestHelper
 {
 
+    public function listValidatedData(array $rules, array $messages = [], array $customAttributes = [])
+    {
+        return array_values($this->getValidatedData($rules, $messages, $customAttributes));
+    }
+
     public function getValidatedData(array $rules, array $messages = [], array $customAttributes = [])
     {
         /** @var Request $request */
