@@ -25,7 +25,7 @@ trait PageHelper
      * @param array $columns
      * @param string $pageName
      * @param null $page
-     * @return LengthAwarePaginator|AbstractPaginator
+     * @return LengthAwarePaginator|AbstractPaginator|Paginator
      */
     public function applyPaginate($builder, $perPage = 15, $columns = ['*'], $pageName = 'page', $page = null)
     {
