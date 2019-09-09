@@ -13,9 +13,11 @@ use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
 use CaoJiayuan\LaravelApi\Areas\MigrateAreaCommand;
 use CaoJiayuan\LaravelApi\Http\Proxy\HttpProxyCommand;
 use CaoJiayuan\LaravelApi\Http\Server\ServerCommand;
+use CaoJiayuan\LaravelApi\Pagination\Paginator;
 use CaoJiayuan\LaravelApi\Signature\Validator;
 use CaoJiayuan\LaravelApi\WebSocket\ServerCommand as WsServerCommand;
 use Illuminate\Log\Writer;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\ServiceProvider;
 use Mnabialek\LaravelSqlLogger\Providers\ServiceProvider as SqlLoggerServiceProvider;
 use Tymon\JWTAuth\Providers\LaravelServiceProvider;
@@ -60,6 +62,12 @@ class LaravelApiServiceProvider extends ServiceProvider
             $this->registerCommands();
         }
         $this->registerSignature();
+        $this->registerPaginator();
+    }
+
+    protected function registerPaginator()
+    {
+        $this->app->bind(LengthAwarePaginator::class, Paginator::class);
     }
 
     protected function registerSignature()

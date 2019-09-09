@@ -28,6 +28,7 @@ class LumenApiServiceProvider extends LaravelApiServiceProvider
             $this->registerCommands();
         }
         $this->registerSignature();
+        $this->registerPaginator();
     }
 
     public function publish()
