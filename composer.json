@@ -6,8 +6,8 @@
         "tymon/jwt-auth": "^1.0.0"
     },
     "require-dev": {
-        "barryvdh/laravel-ide-helper": "^2.5",
-        "mnabialek/laravel-sql-logger": "^1.1"
+        "barryvdh/laravel-ide-helper": "^2.6",
+        "mnabialek/laravel-sql-logger": "^2.2"
     },
     "license": "MIT",
     "authors": [
