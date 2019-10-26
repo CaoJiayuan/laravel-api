@@ -29,6 +29,12 @@ class PipelineQuery
 
     protected $builder = null;
 
+    protected $queryNow = false;
+
+    protected $queryResult = null;
+
+    protected $queried = false;
+
     public function __construct(Model $model)
     {
         $this->model = $model;
@@ -85,7 +91,7 @@ class PipelineQuery
      */
     public function throughPipes($pipes, callable $first = null)
     {
-        $result = array_reduce($pipes, function ($builder, $pipe) {
+        $this->queryResult = array_reduce($pipes, function ($builder, $pipe) {
             list($method, $arguments) = $pipe;
             if (is_null($builder)) {
                 $builder = $this->getBuilder();
@@ -94,10 +100,17 @@ class PipelineQuery
             return call_user_func_array([$builder, $method], $arguments);
         }, $first ? $first($this->getBuilder()) : $this->getBuilder());
 
-        if ($result instanceof Builder || $result instanceof EloquentBuilder) {
-            return $result->get();
+        if ($this->queryNow && ($this->queryResult instanceof Builder || $this->queryResult instanceof EloquentBuilder)) {
+            $this->queried = true;
+            return $this->queryResult->get();
         }
 
-        return $result;
+        return $this->queryResult;
+    }
+
+    public function now()
+    {
+        $this->queryNow = true;
+
     }
 }

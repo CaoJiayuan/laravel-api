@@ -51,6 +51,16 @@ class Paginator extends LengthAwarePaginator
         return $this;
     }
 
+    public function toArray()
+    {
+        $data = parent::toArray();
+        if ($this->merges) {
+            $data = array_merge($data, $this->merges);
+        }
+
+        return $data;
+    }
+
     /**
      * @param LengthAwarePaginator|\Illuminate\Contracts\Pagination\LengthAwarePaginator $paginator
      * @return static
