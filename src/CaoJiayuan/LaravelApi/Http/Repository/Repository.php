@@ -11,6 +11,7 @@ namespace CaoJiayuan\LaravelApi\Http\Repository;
 use CaoJiayuan\LaravelApi\Database\Eloquent\Helpers\Filterable;
 use CaoJiayuan\LaravelApi\Database\Eloquent\PipelineQuery;
 use CaoJiayuan\LaravelApi\Pagination\PageHelper;
+use CaoJiayuan\LaravelApi\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
@@ -37,10 +38,13 @@ class Repository
         list($filter, $order, $pageSize) = array_values($data);
         $builder = $this->getSearchableBuilder($model, $search, $closure, $order, $filter);
         if (!$page) {
-            return $trans ? $trans($builder->get()) : $builder->get();
+            $data = $builder->get();
+            $total = $data->count();
+            $pager = new Paginator($data, $total, $total);
+        } else {
+            $pager = $this->applyPaginate($builder, $pageSize);
         }
 
-        $pager = $this->applyPaginate($builder, $pageSize);
         if ($trans) {
             $pager->setCollection($trans($pager->getCollection()));
         }
