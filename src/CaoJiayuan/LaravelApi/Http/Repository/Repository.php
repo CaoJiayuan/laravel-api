@@ -20,7 +20,7 @@ class Repository
 {
     use PageHelper, Filterable;
 
-    public function getSearchAbleData($model, array $search = [], \Closure $closure = null, \Closure $trans = null)
+    public function getSearchAbleData($model, array $search = [], \Closure $closure = null, \Closure $trans = null, $page = true)
     {
         $filterKey = $this->getFilterKey();
         $sortKey = $this->getSortKey();
@@ -36,6 +36,9 @@ class Repository
         ], $data);
         list($filter, $order, $pageSize) = array_values($data);
         $builder = $this->getSearchableBuilder($model, $search, $closure, $order, $filter);
+        if (!$page) {
+            return $trans ? $trans($builder->get()) : $builder->get();
+        }
 
         $pager = $this->applyPaginate($builder, $pageSize);
         if ($trans) {
