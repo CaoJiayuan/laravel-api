@@ -40,7 +40,7 @@ class Repository
         if (!$page) {
             $data = $builder->get();
             $total = $data->count();
-            $pager = new Paginator($data, $total, $total);
+            $pager = new Paginator($data, $total, $total ?: 15);
         } else {
             $pager = $this->applyPaginate($builder, $pageSize);
         }
