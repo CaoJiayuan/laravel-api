@@ -21,6 +21,8 @@ class Repository
 {
     use PageHelper, Filterable;
 
+    protected $searchOperator = 'like binary';
+
     public function getSearchAbleData($model, array $search = [], \Closure $closure = null, \Closure $trans = null, $page = true)
     {
         $filterKey = $this->getFilterKey();
@@ -102,7 +104,7 @@ class Repository
                         $key = $table . '.' . $column;
                     }
 
-                    $builder->orWhere($key, 'like binary', "%{$filter}%");
+                    $builder->orWhere($key, $this->searchOperator, "%{$filter}%");
                 }
             });
         }
