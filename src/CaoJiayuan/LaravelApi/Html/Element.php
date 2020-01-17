@@ -143,4 +143,14 @@ class Element extends BaseElement implements Arrayable
 
         return $this;
     }
+
+    public function src()
+    {
+        return $this->attr('src');
+    }
+
+    public function href()
+    {
+        return $this->attr('href');
+    }
 }
