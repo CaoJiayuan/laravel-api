@@ -34,9 +34,9 @@ trait ResponseHelper
         }
     }
 
-    public function respondCustomMessage($code, $message, $statusCode = 200, $data = [])
+    public function respondCustomMessage($code, $message, $statusCode = 200, $data = [], $headers = [])
     {
-        throw new CustomHttpException($code, $message, $data, $statusCode);
+        throw new CustomHttpException($code, $message, $data, $statusCode, null, $headers);
     }
 
     public function respondMessage($status, $message)
