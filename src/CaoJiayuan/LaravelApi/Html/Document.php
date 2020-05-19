@@ -12,6 +12,7 @@ namespace CaoJiayuan\LaravelApi\Html;
 use CaoJiayuan\LaravelApi\Content\Html;
 use DiDom\Document as BaseDocument;
 use DiDom\Query;
+use Illuminate\Support\Str;
 
 class Document extends BaseDocument
 {
@@ -19,7 +20,7 @@ class Document extends BaseDocument
 
     public function __construct($doc = null, $isFile = false, $encoding = 'UTF-8', $type = BaseDocument::TYPE_HTML)
     {
-        if (is_string($doc) && starts_with($doc, 'http')) {
+        if (is_string($doc) &&  Str::startsWith($doc, 'http')) {
             $isFile = true;
         }
 

@@ -13,6 +13,7 @@ use CaoJiayuan\LaravelApi\Html\Loader\ContentLoader;
 use CaoJiayuan\LaravelApi\Html\Loader\GuzzleLoader;
 use CaoJiayuan\LaravelApi\Ob\ObjectOb;
 use CaoJiayuan\LaravelApi\Ob\Value;
+use Illuminate\Support\Str;
 
 /**
  * Class LazyLoadDocument
@@ -34,7 +35,7 @@ class LazyLoadDocument extends ObjectOb
      */
     public function __construct($load)
     {
-        if (starts_with($load, ['http://', 'https://']))  {
+        if (Str::startsWith($load, ['http://', 'https://']))  {
             $this->loader = new GuzzleLoader($load);
         } else {
             $this->loader = new ContentLoader($load);
