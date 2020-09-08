@@ -24,10 +24,10 @@ trait ExceptionRenderer
 
     /**
      * @param Request $request
-     * @param Exception $exception
+     * @param Exception|\Throwable $exception
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\Response
      */
-    public function renderException($request, Exception $exception)
+    public function renderException($request, $exception)
     {
         if ($exception instanceof AuthenticationException) {
             return $this->unauthenticated($request, $exception);
