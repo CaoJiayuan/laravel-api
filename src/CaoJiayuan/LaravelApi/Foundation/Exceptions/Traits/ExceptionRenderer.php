@@ -138,10 +138,10 @@ trait ExceptionRenderer
     }
 
     /**
-     * @param Exception $exception
+     * @param Exception|\Throwable $exception
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function toJsonExceptionResponse(Exception $exception)
+    protected function toJsonExceptionResponse($exception)
     {
         $code = 500;
         $errors = [];
