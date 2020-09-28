@@ -27,11 +27,7 @@ trait ResponseHelper
 
     public function respondMessageWithData($status, $message, $data = [], $statusCode = 200)
     {
-        if (!empty($data)) {
-            $this->respondCustomMessage($status, $message, $statusCode, $data);
-        } else {
-            $this->respondMessage($status, $message);
-        }
+        $this->respondCustomMessage($status, $message, $statusCode, $data);
     }
 
     public function respondCustomMessage($code, $message, $statusCode = 200, $data = [], $headers = [])
