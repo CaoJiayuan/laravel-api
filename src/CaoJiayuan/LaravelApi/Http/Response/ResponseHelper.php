@@ -25,10 +25,10 @@ trait ResponseHelper
         $this->respondMessageWithData(200, $message, $data);
     }
 
-    public function respondMessageWithData($status, $message, $data = [])
+    public function respondMessageWithData($status, $message, $data = [], $statusCode = 200)
     {
         if (!empty($data)) {
-            $this->respondCustomMessage($status, $message, $status, $data);
+            $this->respondCustomMessage($status, $message, $statusCode, $data);
         } else {
             $this->respondMessage($status, $message);
         }
