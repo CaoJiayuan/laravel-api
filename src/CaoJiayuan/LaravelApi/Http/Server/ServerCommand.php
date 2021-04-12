@@ -8,7 +8,7 @@
 
 namespace CaoJiayuan\LaravelApi\Http\Server;
 
-use App\Http\Kernel;
+use Illuminate\Contracts\Http\Kernel;
 use CaoJiayuan\LaravelApi\FileSystem\MimeType\ExtensionMimeTypeGuesser;
 use CaoJiayuan\LaravelApi\Http\UploadedFile;
 use Carbon\Carbon;
