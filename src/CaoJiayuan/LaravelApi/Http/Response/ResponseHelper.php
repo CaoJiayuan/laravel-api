@@ -42,21 +42,21 @@ trait ResponseHelper
 
     public function respond404($message, $data = [])
     {
-        $this->respondMessageWithData(404, $message, $data);
+        $this->respondMessageWithData(404, $message, $data, 404);
     }
 
     public function respond403($message, $data = [])
     {
-        $this->respondMessageWithData(403, $message, $data);
+        $this->respondMessageWithData(403, $message, $data, 403);
     }
 
     public function respond422($message, $data = [])
     {
-        $this->respondMessageWithData(422, $message, $data);
+        $this->respondMessageWithData(422, $message, $data, 422);
     }
 
     public function respond401($message, $data = [])
     {
-        $this->respondMessageWithData(401, $message, $data);
+        $this->respondMessageWithData(401, $message, $data, 401);
     }
 }
